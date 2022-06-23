@@ -341,7 +341,7 @@ class Lab_Widget(Ui_Widget):
     def refrescar_servidor(self):
 
         try:
-            self.mongo_client = pymongo.MongoClient(self.bd_ip.text(), serverSelectionTimeoutMS = 3000)
+            self.mongo_client = pymongo.MongoClient(self.bd_ip.text(), username=self.bd_usuario.text(), password=self.bd_password.text(), serverSelectionTimeoutMS = 3000)
             self.nombres_parametros = {}
             for parametro in self.mongo_client.db.nombres_parametros.find({}):
                 self.nombres_parametros[parametro['nombre']] = parametro['tipo']
@@ -350,10 +350,12 @@ class Lab_Widget(Ui_Widget):
             dir_path = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')           
             with open(dir_path + '/nombres_parametros.txt', 'w') as archivo_nombres_parametros:
                 json.dump(self.nombres_parametros, archivo_nombres_parametros, indent = 4)
+            self.status.setText('Status: OK')
 
-        except:
+        except Exception as e:
             self.mongo_client = None
             self.print('Error conectando a base de datos del servidor')
+            self.print(str(e) + '\n')
             self.print('Operando en modo offline')
             self.status.setText('Status: Error')
             dir_path = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
