@@ -5,7 +5,7 @@
 Este sistema funciona utilizando dos programas o aplicaciones: Uno para ser usado en el laboratorio al ingresar datos manualmente y por medio de osciloscopios, y otro para ser usado en la oficina capaz de buscar y desgargar datos experimentales. Ambos se cominucan con el mismo servidor, en el cual se encuentran almacenados los datos.
 
 \
-
+\
 ## Aplicacion de Laboratorio
 - Ingreso manual de datos experimentales
 - Conexion de osciloscopios
@@ -37,8 +37,7 @@ El software puede ser complilado a programa de windows (.exe) utilizando [pyinst
 Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y crear un acceso directo a AppLab.exe para mayor comodidad.
 
 \
-
-
+\
 ## Aplicacion de Oficina
 - Conexion a servidor
 - Busquedas de datos segun parametros
@@ -65,8 +64,7 @@ El software puede ser complilado a programa de windows (.exe) utilizando [pyinst
 Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y crear un acceso directo a AppOffice.exe para mayor comodidad.
 
 \
-
-
+\
 ## Servidor Local
 - Base de datos MongoDB
 - Servidor SFTP
