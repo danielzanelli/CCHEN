@@ -1,5 +1,3 @@
-
-
 from ventanaPrincipal import Ui_Widget
 from agregarFiltro import Ui_AgregarFiltro
 from eliminarFiltro import Ui_EliminarFiltro
@@ -8,15 +6,13 @@ import stat
 import paramiko
 import pymongo
 import datetime
-import unicodedata
 import sys
 import os
-import time
 import json
 import numpy as np
 import pandas as pd
 from PyQt5.QtGui import QPixmap ,QTextCursor, QIcon
-from PyQt5.QtCore import Qt, QObject ,pyqtSignal, QThread
+from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets
 from tkinter import Tk
 from tkinter.filedialog import askdirectory
