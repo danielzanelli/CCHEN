@@ -26,7 +26,8 @@ Este sistema funciona utilizando dos programas o aplicaciones: Uno para ser usad
 <br/>
 
 
-## Servidor Local
+## Servidor
 - Base de datos MongoDB
 - Servidor SFTP
 - Administración usuarios
+- Puede ser configurado localmente o en la nube
