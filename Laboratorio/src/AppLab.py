@@ -1,9 +1,3 @@
-from logging import exception
-from re import U
-import sys
-import os
-import shutil
-
 from ventanaPrincipal import Ui_Widget
 from agregarCanal import Ui_AgregarCanal
 from agregarExperimento import Ui_AgregarExperimento
@@ -18,6 +12,9 @@ from eliminarParametro import Ui_EliminarParametro
 from eliminarCanal import Ui_EliminarCanal
 from subirBd import Ui_Subir
 
+import sys
+import os
+import shutil
 import paramiko
 import pymongo
 import datetime
@@ -113,8 +110,6 @@ class ImageWorker(QObject):
                 self.msg.emit(message)
         self.finished.emit()
 
-
-
 class DataWorker(QObject):
 
     finished = pyqtSignal()
@@ -129,7 +124,6 @@ class DataWorker(QObject):
         self.device = pyvisa.ResourceManager().open_resource(device_name)
         self.device.timeout = 10 * 1000
         self.done = False
-        
 
     def get_data(self):
 
@@ -192,9 +186,6 @@ class DataWorker(QObject):
 
         self.done = True
         self.finished.emit()
-
-
-
 
 class Lab_Widget(Ui_Widget):
     def __init__(self, Widget) -> None:
@@ -286,7 +277,6 @@ class Lab_Widget(Ui_Widget):
 
         self.refrescar_servidor()
 
-
     def refrescar_jornadas(self):
         
         experimento = self.bd_experimento.currentText()
@@ -347,7 +337,6 @@ class Lab_Widget(Ui_Widget):
 
         self.refrescar_archivos_locales()
         self.refrescar_parametros()
-        
 
     def refrescar_servidor(self):
 
@@ -400,7 +389,6 @@ class Lab_Widget(Ui_Widget):
         
         self.ingreso_parametro_parametro_4.clear()
         self.ingreso_parametro_parametro_4.addItems([x for x in self.nombres_parametros])
-        
 
     def buscar_dispositivos(self):
 
@@ -416,8 +404,6 @@ class Lab_Widget(Ui_Widget):
         self.dispositivos_dispositivos_disponibles.clear()
         self.dispositivos_dispositivos_disponibles.addTopLevelItems(items)
 
-
-    
     def conectar(self):
         try:
             nombre = self.dispositivos_dispositivos_disponibles.selectedItems()[0].text(0)
@@ -457,8 +443,7 @@ class Lab_Widget(Ui_Widget):
             self.print('Error conectando dispositivo:')
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
-
-        
+ 
     def conectar_dispositivo_ip(self):
         try:
             ip = self.ui_conectar_dispositivo_ip.ip.text()
@@ -520,7 +505,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
     def agregar_jornada(self):
 
         nombre = self.ui_agregar_jornada.nombre.text()
@@ -568,7 +552,6 @@ class Lab_Widget(Ui_Widget):
 
         self.dialog_agregar_experimento.exec_()
 
-
     def popup_agregar_jornada(self):
         self.dialog_agregar_jornada = QtWidgets.QDialog()
         self.ui_agregar_jornada = Ui_AgregarJornada()
@@ -584,7 +567,6 @@ class Lab_Widget(Ui_Widget):
 
         self.dialog_agregar_jornada.exec_()
 
-
     def popup_conectar_dispositivo_ip(self):
         self.dialog_conectar_dispositivo_ip = QtWidgets.QDialog()
         self.ui_conectar_dispositivo_ip = Ui_DispositivoIp()
@@ -594,7 +576,6 @@ class Lab_Widget(Ui_Widget):
         self.ui_conectar_dispositivo_ip.conectar.clicked.connect(self.conectar_dispositivo_ip)
 
         self.dialog_conectar_dispositivo_ip.exec_()
-
 
     def actualizar_canales_popup(self):
         
@@ -626,7 +607,6 @@ class Lab_Widget(Ui_Widget):
         self.actualizar_canales_popup()
 
         self.dialog_agregar_canal.exec_()
-
 
     def popup_asignar_datapoint(self):        
         
@@ -670,8 +650,6 @@ class Lab_Widget(Ui_Widget):
             self.status.setText('Status: Error')
 
         self.dialog_asignar_datapoint.exec_()
-        
-
 
     def popup_eliminar_archivo(self):        
         
@@ -714,7 +692,6 @@ class Lab_Widget(Ui_Widget):
             self.status.setText('Status: Error')
 
         self.dialog_eliminar_archivo.exec_()
-        
 
     def popup_eliminar_parametro(self):        
         
@@ -737,7 +714,6 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_parametro.datapoint.setText(datapoint)
 
         self.dialog_eliminar_parametro.exec_()
-        
 
     def popup_crear_parametro(self):        
         
@@ -749,9 +725,6 @@ class Lab_Widget(Ui_Widget):
         self.ui_crear_parametro.crear.clicked.connect(self.crear_parametro)
 
         self.dialog_crear_parametro.exec_()
-        
-
-
 
     def popup_subir(self):        
         
@@ -763,7 +736,6 @@ class Lab_Widget(Ui_Widget):
         self.ui_subir.subir.clicked.connect(self.subir)
 
         self.dialog_subir.exec_()
-        
 
     def popup_guardar_descripcion(self):        
         
@@ -776,7 +748,6 @@ class Lab_Widget(Ui_Widget):
 
         self.dialog_guardar_descripcion.exec_()
         
-
     def popup_desconectar_dispositivo(self):
         try:
             nombre = self.dispositivos_dispositivos_conectados.selectedItems()[0].text(0)
@@ -790,7 +761,6 @@ class Lab_Widget(Ui_Widget):
         self.ui_desconectar_dispositivo.desconectar.clicked.connect(self.desconectar_dispositivo)
 
         self.dialog_desconectar_dispositivo.exec_()
-        
 
     def popup_eliminar_canal(self):
         try:
@@ -812,8 +782,6 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_canal.eliminar.clicked.connect(self.eliminar_canal)
 
         self.dialog_eliminar_canal.exec_()
-        
-
 
     def agregar_canal(self):
 
@@ -875,8 +843,6 @@ class Lab_Widget(Ui_Widget):
         self.dispositivos_dispositivos_conectados.clear()
         self.dispositivos_dispositivos_conectados.addTopLevelItems(items)
 
-
-
     def eliminar_canal(self):
         try:
             osciloscopio = self.dispositivos_canales.selectedItems()[0].text(2).split(' - ')[0]
@@ -894,7 +860,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
     def actualizar_status(self, ultimo):
         if len(self.data_workers) <=1 and ultimo:
             if self.adquisicion_auto_guardar.checkState() == 2:
@@ -909,7 +874,6 @@ class Lab_Widget(Ui_Widget):
                 self.status.setText('Status: Adquiriendo datos de ' + str(len(self.data_workers)) + ' dispositivos')
             else:
                 self.status.setText('Status: Adquiriendo datos de 1 dispositivo')
-        
 
     def eliminar_workers(self):
 
@@ -987,7 +951,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-    
     def guardar_datos(self):
         if self.carpeta_local == '':
             self.print('Error al guardar datos: Carpeta de trabajo no especificada')
@@ -1051,12 +1014,10 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
     def trigger_event(self, count):
         self.print('Trigger status: ' + str(count))
         #self.print('Trigger pausado')
         self.adquirir_datos()
-
 
     def get_data_event(self, response):
 
@@ -1099,8 +1060,6 @@ class Lab_Widget(Ui_Widget):
         self.adquisicion_preview_image.setVisible(False)
         self.adquisicion_preview_text.setVisible(False)
 
-
-
     def new_image_event(self, msg):
         if '*' in msg:
             files = msg.split('*')
@@ -1140,8 +1099,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-                
-    
     def auto(self):
         
         if self.adquisicion_auto.text() == 'Auto':
@@ -1202,9 +1159,7 @@ class Lab_Widget(Ui_Widget):
             self.trigger_thread.quit()
             self.image_worker.running = False
             self.image_thread.quit()
-
-
-    
+ 
     def seleccionar_carpeta_imagenes(self):
         parent = Tk()
         parent.overrideredirect(1)
@@ -1219,7 +1174,6 @@ class Lab_Widget(Ui_Widget):
 
         self.carpeta_imagenes = carpeta
         self.adquisicion_label_carpeta_imagenes.setText(self.carpeta_imagenes)
-
 
     def refrescar_archivos_locales(self):
 
@@ -1280,7 +1234,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
     def seleccionar_carpeta(self):
         parent = Tk()
         parent.overrideredirect(1)
@@ -1324,7 +1277,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
     def ingreso_visualizar_archivo(self):
 
         try:
@@ -1354,7 +1306,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
     def cargar_parametros(self):
         if self.carpeta_local == '':
             return
@@ -1371,7 +1322,6 @@ class Lab_Widget(Ui_Widget):
             self.print('Error al cargar archivo parametros.txt:')
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
-
 
     def guardar_parametros(self):
         if self.carpeta_local == '':
@@ -1494,8 +1444,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
-    
     def agregar_archivo(self):
         if self.carpeta_local == '':
             self.print('Error al agregar archivo: Carpeta de trabajo no especificada')
@@ -1542,8 +1490,6 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-        
-    
     def eliminar_archivo(self):
         try:
             archivo = self.ingreso_archivos_locales.selectedItems()[0].text(1)    
@@ -1669,8 +1615,7 @@ class Lab_Widget(Ui_Widget):
             self.print('No se puede agregar parametro: Datapoint invalido')
             self.status.setText('Status: Error')
             return False
-
-        
+       
     def agregar_valor_parametro_1(self):
         datapoint = self.ingreso_datapoint_parametro_1.text().replace(" ", "")
         unidad = self.ingreso_unidad_parametro_1.text()
@@ -1785,8 +1730,6 @@ class Lab_Widget(Ui_Widget):
         self.refrescar_nombres_parametros()
         self.dialog_crear_parametro.done(1)
 
-
-
     def visualizar_csv(self, filepath, graph_frame, image_frame, text_frame, preview_label):        
                 dataframe = pd.read_csv(filepath)
                 graph_frame.clear()
@@ -1803,7 +1746,6 @@ class Lab_Widget(Ui_Widget):
                 image_frame.setVisible(False)
                 text_frame.setVisible(False)
                 preview_label.setText(filepath.split('/')[-1])
-
 
     def visualizar_imagen(self, filepath, graph_frame, image_frame, text_frame, preview_label):
 
@@ -1829,7 +1771,6 @@ class Lab_Widget(Ui_Widget):
                 image_frame.setVisible(False)
                 text_frame.setVisible(True)
                 preview_label.setText(filepath.split('/')[-1])
-
     
     def guardar_perfil(self):
 
@@ -1902,9 +1843,6 @@ class Lab_Widget(Ui_Widget):
             self.print('Error cargando perfil desde ' + filename + ' :')
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
-
-
-
 
     def print(self, text):
         self.log.append( datetime.datetime.now().strftime('%H:%M:%S - ') + str(text))
@@ -1983,13 +1921,7 @@ class Lab_Widget(Ui_Widget):
                 archivos_agregados += 1
 
             self.print('Se han subido '+str(archivos_agregados) + ' archivos')
-
-
-            # for nombre_parametro in self.parametros:
-            #     for parametro in self.parametros[nombre_parametro]:
-            #         payload = {'jornada':jornada,'experimento':experimento,'parametro':nombre_parametro,'datapoint':parametro['datapoint'], 'valor':parametro['valor'], 'unidad':parametro['unidad']}
-            #         self.mongo_client.update_one(payload, payload, upsert = True)
-
+            
             self.refrescar_servidor()
             self.refrescar_parametros()
             self.status.setText('Status: OK')
@@ -2001,8 +1933,6 @@ class Lab_Widget(Ui_Widget):
 
 
         self.dialog_subir.done(1)
-
-
 
 
 app = QtWidgets.QApplication(sys.argv)
