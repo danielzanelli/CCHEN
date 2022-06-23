@@ -721,7 +721,7 @@ class Office_Wigdet(Ui_Widget):
         self.status.setText('Status: Conectando')
 
         try:
-            self.mongo_client = pymongo.MongoClient(self.conexion_ip.text(), serverSelectionTimeoutMS = 2000)
+            self.mongo_client = pymongo.MongoClient(self.conexion_ip.text(), username=self.conexion_usuario.text(), password=self.conexion_password.text(), serverSelectionTimeoutMS = 2000)
             self.nombres_parametros = {}
             for parametro in self.mongo_client.db.nombres_parametros.find({}):
                 self.nombres_parametros[parametro['nombre']] = parametro['tipo']
