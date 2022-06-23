@@ -1,8 +1,8 @@
-##Sistema de Adquisicion, Almacenamiento y Visualización de Datos Experimentales
+## Sistema de Adquisicion, Almacenamiento y Visualización de Datos Experimentales
 
-#####Autor: Daniel Zanelli
+##### Autor: Daniel Zanelli
 
-###Aplicacion de Laboratorio
+### Aplicacion de Laboratorio
 - Ingreso manual de datos experimentales
 - Conexion de osciloscopios
 - Adquisicion de curvas
@@ -10,12 +10,12 @@
 - Almacenamiento de datos local
 - Subida de datos a servidor
 
-###Aplicación de Oficina
+### Aplicación de Oficina
 - Conexion a servidor
 - Busquedas de datos segun parametros
 - Explorar archivos servidor
 
-###Servidor Local
+### Servidor Local
 - Base de datos MongoDB
 - Servidor SFTP
 - Administración usuarios
