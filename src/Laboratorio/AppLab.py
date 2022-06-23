@@ -1,9 +1,3 @@
-from logging import exception
-from re import U
-import sys
-import os
-import shutil
-
 from ventanaPrincipal import Ui_Widget
 from agregarCanal import Ui_AgregarCanal
 from agregarExperimento import Ui_AgregarExperimento
@@ -18,6 +12,9 @@ from eliminarParametro import Ui_EliminarParametro
 from eliminarCanal import Ui_EliminarCanal
 from subirBd import Ui_Subir
 
+import sys
+import os
+import shutil
 import paramiko
 import pymongo
 import datetime
@@ -1983,13 +1980,7 @@ class Lab_Widget(Ui_Widget):
                 archivos_agregados += 1
 
             self.print('Se han subido '+str(archivos_agregados) + ' archivos')
-
-
-            # for nombre_parametro in self.parametros:
-            #     for parametro in self.parametros[nombre_parametro]:
-            #         payload = {'jornada':jornada,'experimento':experimento,'parametro':nombre_parametro,'datapoint':parametro['datapoint'], 'valor':parametro['valor'], 'unidad':parametro['unidad']}
-            #         self.mongo_client.update_one(payload, payload, upsert = True)
-
+            
             self.refrescar_servidor()
             self.refrescar_parametros()
             self.status.setText('Status: OK')
