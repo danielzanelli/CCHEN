@@ -12,17 +12,22 @@ Este sistema funciona utilizando dos programas o aplicaciones: Uno para ser usad
 - Almacenamiento de datos local
 - Subida de datos a servidor
 
-#### Modo de uso
+### Modo de uso
+
 El programa puede ser ejecutado directamente utilizando python 3. En caso de no tenerlo instalado, se puede descargar [aqui](https://www.python.org/downloads/).
 
+\n
 Para instalar las dependencias mediante el gestor de paquetes de python (pip):
 
 `pip install paramiko pymongo pyvisa numpy pandas tkinter pyqt5 pyqtgraph`
 
+
+\n
 Luego para ejecutar:
 
 `python AppLab.py`
 
+\n
 El software puede ser complilado a programa de windows (.exe) utilizando [pyinstaller](https://pyinstaller.org/en/stable/):
 
 `pyinstaller AppLab.py --icon icon.ico --windowed`
@@ -37,14 +42,17 @@ Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y cr
 #### Modo de uso
 El programa puede ser ejecutado directamente utilizando python 3. En caso de no tenerlo instalado, se puede descargar [aqui](https://www.python.org/downloads/).
 
+\n
 Para instalar las dependencias mediante el gestor de paquetes de python (pip):
 
 `pip install paramiko pymongo numpy pandas tkinter pyqt5 pyqtgraph`
 
+\n
 Luego para ejecutar:
 
 `python AppOffice.py`
 
+\n
 El software puede ser complilado a programa de windows (.exe) utilizando [pyinstaller](https://pyinstaller.org/en/stable/):
 
 `pyinstaller AppOffice.py --icon icon.ico --windowed`
