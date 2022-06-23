@@ -18,7 +18,6 @@ from tkinter import Tk
 from tkinter.filedialog import askdirectory
 
 
-
 class Office_Wigdet(Ui_Widget):
     def __init__(self, Widget) -> None:
         super().__init__()
@@ -48,9 +47,7 @@ class Office_Wigdet(Ui_Widget):
         self.explorar_descargar.clicked.connect(self.explorar_descargar_seleccion)
         
         self.busqueda_agregar_filtro.clicked.connect(self.popup_agregar_filtro)
-        self.busqueda_eliminar_filtro.clicked.connect(self.popup_eliminar_filtro)
-
-        
+        self.busqueda_eliminar_filtro.clicked.connect(self.popup_eliminar_filtro)        
 
         self.print('Programa inicializado - ' + datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S'))
 
@@ -66,7 +63,6 @@ class Office_Wigdet(Ui_Widget):
             i+=1
         self.busqueda_filtros.clear()
         self.busqueda_filtros.addTopLevelItems(items)
-            
 
     def popup_agregar_filtro(self):
         
@@ -93,7 +89,7 @@ class Office_Wigdet(Ui_Widget):
     def refrescar_popup_agregar_filtro(self):
         
         parametro = self.ui_agregar_filtro.parametro.currentText()
-        
+
         if parametro == 'Experimento':
             tipo = 'string'
         elif parametro in self.nombres_parametros:
@@ -122,7 +118,7 @@ class Office_Wigdet(Ui_Widget):
         parametro = self.ui_agregar_filtro.parametro.currentText()
         condicion = self.ui_agregar_filtro.condicion.currentText()
         valor = self.ui_agregar_filtro.valor.text()
-        
+
         if parametro == 'Experimento':
             tipo = 'string'
         elif parametro in self.nombres_parametros:
@@ -153,7 +149,6 @@ class Office_Wigdet(Ui_Widget):
         self.refrescar_filtros()        
         self.dialog_agregar_filtro.done(1)
         
-
     def popup_eliminar_filtro(self):
         
         if self.ip == '' or self.usuario == '' or self.password == '':
@@ -179,9 +174,6 @@ class Office_Wigdet(Ui_Widget):
         self.ui_eliminar_filtro.parametro.setText(parametro)
         self.ui_eliminar_filtro.condicion.setText(condicion)
         self.ui_eliminar_filtro.valor.setText(valor)
-
-        # self.ui_eliminar_filtro.parametro.currentIndexChanged.connect(self.refrescar_popup_eliminar_filtro)
-        # self.refrescar_popup_eliminar_filtro()
 
         self.dialog_eliminar_filtro.exec_()
         
@@ -217,10 +209,9 @@ class Office_Wigdet(Ui_Widget):
             resultados_parametros = {}
             i=0
             for filtro in self.filtros:
-            
+
                 busqueda = {}
-                resultados[i] = {}
-            
+                resultados[i] = {}            
                 busqueda['parametro'] = filtro['parametro']
 
                 if filtro['parametro'] == 'Experimento':
@@ -346,7 +337,6 @@ class Office_Wigdet(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
     def refrescar_resultados(self):
 
         items = []
@@ -434,8 +424,6 @@ class Office_Wigdet(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-
-
     def obtener_seleccion_arbol(self, arbol):
         seleccion = {}
         for i in range(arbol.childCount()):
@@ -503,9 +491,6 @@ class Office_Wigdet(Ui_Widget):
                         self.descargar_archivos_desde_arbol(arbol[elemento.filename], carpeta_local + '/' + elemento.filename, carpeta_remota + '/' + elemento.filename, sftp)
                 else:
                     sftp.get(carpeta_remota + '/' + elemento.filename, carpeta_local + '/' + elemento.filename)
-        
-
-
 
     def visualizar_resultados(self):
         try:
@@ -588,8 +573,6 @@ class Office_Wigdet(Ui_Widget):
             self.print('Error visualizando archivo:')
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
-
-
 
     def visualizar_archivo_explorar(self):
         try:
@@ -676,7 +659,6 @@ class Office_Wigdet(Ui_Widget):
             text_frame.setVisible(False)
             preview_label.setText(filepath.split('/')[-1])
 
-
     def visualizar_imagen(self, filepath, graph_frame, image_frame, text_frame, preview_label):
 
         transport = paramiko.Transport((self.ip,22))
@@ -714,8 +696,6 @@ class Office_Wigdet(Ui_Widget):
                 text_frame.setVisible(True)
                 preview_label.setText(filepath.split('/')[-1])
 
-    
-
     def generar_arbol(self, sftp, root, folder):
         i=0
         for elemento in sftp.listdir_attr(folder):
@@ -731,30 +711,10 @@ class Office_Wigdet(Ui_Widget):
                 self.generar_arbol(sftp, item, folder + '/' + elemento.filename)
             i+=1
 
-
     def refrescar_checkbox_arbol(self,item):
         
         for i in range(item.childCount()):
             item.child(i).setCheckState(2,item.checkState(2))
-            # if item.child(i).childCount()>0:
-            #         self.refrescar_checkbox_arbol(item.child(i))
-
-        # while item.parent() != None:
-        #     allSelected = True            
-        #     for i in range(item.parent().childCount()):
-        #         if item.parent().child(i).checkState(2) == 0:
-        #             allSelected = False
-        #             break            
-        #     if allSelected:
-        #         self.print('All Selected')
-        #         item.parent().setCheckState(2,2)
-        #     else:
-        #         self.print('Not all Selected')
-        #         item.parent().setCheckState(2,0)
-        #     item  = item.parent()
-
-        # self.explorar_archivos.itemChanged.connect(self.refrescar_checkbox_arbol)
-        
 
     def conectar(self):
         self.print('Conectando a servidor...')
@@ -795,14 +755,10 @@ class Office_Wigdet(Ui_Widget):
             self.status.setText('Status: Error')
             self.nombres_parametros = {}
 
-
     def print(self, text):
         self.log.append( datetime.datetime.now().strftime('%H:%M:%S - ') + str(text))
         self.log.moveCursor(QTextCursor.End)
         self.log.ensureCursorVisible()
-
-
-
 
 app = QtWidgets.QApplication(sys.argv)
 app.setWindowIcon(QIcon('icon.ico'))
