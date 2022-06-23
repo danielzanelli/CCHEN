@@ -172,8 +172,13 @@ class DataWorker(QObject):
                 else:
                     inicio = 0
                     
+                if 'PT_OFF ' in header:
+                    pt_off = float(header.split('PT_OFF ')[-1].split(';')[0])
+                else:
+                    pt_off = 0
+                    
                 incremento = float(header.split('XINCR ')[-1].split(';')[0])
-                x = np.linspace(inicio, inicio + len(y)*incremento, len(y))            
+                x = np.linspace(inicio, inicio + len(y)*incremento, len(y)) - pt_off * incremento        
 
                 datos = {'x':x, 'y':y, 'header': header}    
                 
