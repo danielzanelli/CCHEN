@@ -30,7 +30,6 @@ https://user-images.githubusercontent.com/83187517/175224138-97df8bff-c9b2-4c5e-
 - Explorar archivos servidor
 
 
-https://user-images.githubusercontent.com/83187517/175224194-4100a5b7-dbfc-496d-8a98-d153bdf2f6ac.mp4
 
 https://user-images.githubusercontent.com/83187517/175224209-9944eeab-92e5-46e7-9830-d795e05be1e6.mp4
 
