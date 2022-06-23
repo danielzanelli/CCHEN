@@ -6,8 +6,6 @@ Este sistema funciona utilizando dos programas o aplicaciones: Uno para ser usad
 
 \
 
-\
-
 ## Aplicacion de Laboratorio
 - Ingreso manual de datos experimentales
 - Conexion de osciloscopios
@@ -40,7 +38,6 @@ Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y cr
 
 \
 
-\
 
 ## Aplicacion de Oficina
 - Conexion a servidor
@@ -69,7 +66,6 @@ Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y cr
 
 \
 
-\
 
 ## Servidor Local
 - Base de datos MongoDB
