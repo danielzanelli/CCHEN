@@ -1873,34 +1873,8 @@ class Lab_Widget(Ui_Widget):
         try:
             transport = paramiko.Transport((self.bd_ip.text(),22))
             transport.connect(username = self.bd_usuario.text(), password = self.bd_password.text())
-            sftp = paramiko.SFTPClient.from_transport(transport)        
-        
-            root = self.bd_parametros_locales.invisibleRootItem()
-
-            params_agregados = 0
-            for i in range(root.childCount()):
-                item = root.child(i)
-                if not item.checkState(4):
-                    continue
-                datapoint = item.text(0)
-                parametro = item.text(1)
-                valor = item.text(2)
-                unidad = item.text(3)
-                if datapoint == '-':
-                    datapoint = ''
-                if parametro in self.nombres_parametros:
-                    if self.nombres_parametros[parametro] == 'float':
-                        valor = float(valor)
-                    elif self.nombres_parametros[parametro] == 'int':
-                        valor = int(valor)
-                payload = {'jornada':jornada,'experimento':experimento,'datapoint':datapoint,'parametro':parametro, 'valor':valor, 'unidad':unidad}
-                self.mongo_client.db.parametros.update_one({'jornada':jornada,'experimento':experimento,'datapoint':datapoint,'parametro':parametro}, {'$set':payload}, upsert = True)
-                params_agregados += 1
-
-            self.print('Se han subido '+str(params_agregados) + ' datapoints de parametros')
-
-
-
+            sftp = paramiko.SFTPClient.from_transport(transport)
+            
             root = self.bd_archivos_locales.invisibleRootItem()
                 
             if not 'Experimentos' in sftp.listdir('usuario_sftp'):
@@ -1928,7 +1902,34 @@ class Lab_Widget(Ui_Widget):
                 archivos_agregados += 1
 
             self.print('Se han subido '+str(archivos_agregados) + ' archivos')
-            
+                  
+        
+            root = self.bd_parametros_locales.invisibleRootItem()
+
+            params_agregados = 0
+            for i in range(root.childCount()):
+                item = root.child(i)
+                if not item.checkState(4):
+                    continue
+                datapoint = item.text(0)
+                parametro = item.text(1)
+                valor = item.text(2)
+                unidad = item.text(3)
+                if datapoint == '-':
+                    datapoint = ''
+                if parametro in self.nombres_parametros:
+                    if self.nombres_parametros[parametro] == 'float':
+                        valor = float(valor)
+                    elif self.nombres_parametros[parametro] == 'int':
+                        valor = int(valor)
+                payload = {'jornada':jornada,'experimento':experimento,'datapoint':datapoint,'parametro':parametro, 'valor':valor, 'unidad':unidad}
+                self.mongo_client.db.parametros.update_one({'jornada':jornada,'experimento':experimento,'datapoint':datapoint,'parametro':parametro}, {'$set':payload}, upsert = True)
+                params_agregados += 1
+
+            self.print('Se han subido '+str(params_agregados) + ' datapoints de parametros')
+
+
+
             self.refrescar_servidor()
             self.refrescar_parametros()
             self.status.setText('Status: OK')
