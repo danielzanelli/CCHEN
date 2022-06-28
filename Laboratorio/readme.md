@@ -12,7 +12,7 @@ Para instalar las dependencias mediante el gestor de paquetes de python (pip):
 
 <br/>
 
-Luego para ejecutar:
+Luego, para ejecutar:
 
 `python AppLab.py`
 
@@ -21,5 +21,7 @@ Luego para ejecutar:
 El software puede ser complilado a programa de windows (.exe) utilizando [pyinstaller](https://pyinstaller.org/en/stable/):
 
 `pyinstaller AppLab.py --icon icon.ico --windowed`
+
 <br/>
+
 Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y crear un acceso directo a AppLab.exe para mayor comodidad.
