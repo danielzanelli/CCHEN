@@ -1,7 +1,7 @@
 ## Configuracion del Servidor
 
 Para el uso del sistema, se requiere de la implementación de un servidor que sea capaz de correr un servicio de SFTP y MongoDB. 
-En esta implementación se cosidera un servidor corriendo en un sistema operativo Ubuntu 20.04:
+En esta implementación se cosidera un servidor corriendo en un sistema operativo Ubuntu 20.04.
 
 <br/>
 
