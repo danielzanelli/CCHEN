@@ -20,6 +20,12 @@ Se pueden descargar versiones del sistema operativo Ubuntu [aqui](https://releas
 Una vez instalado el sistema operativo, se deben crear los usuarios. Para esta implementación se considera un usuario Admin, con permisos de administrador sobre el equipo; un usuario 'usuario_sftp', quien almacenará todos los archivos de datos en su carpeta local; y usuarios específicos para cada usuario real del sistema.
 Los usuarios personales deben ser creados con claves únicas personales por razones de seguridad. 
 
+<br/>
+
+<details>
+  <summary>Agregar usuarios por linea de comandos</summary>
+  <br/>
+  
 Estos usuarios se pueden agregar al servidor usando el comando:
 
 `sudo adduser nombre_usuario`
@@ -31,6 +37,38 @@ Estos usuarios deben pertenecer al grupo 'sftp', el cual puede ser creado utiliz
 El usuario se agrega al grupo mediante:
 
 `sudo usermod -a -G sftp nombre_usuario`
+
+</details>
+
+<br/>
+
+<details>
+  <summary>Agregar usuarios por interfaz gráfica</summary>
+  <br/>
+  
+Se puede acceder a la configuración de usuarios desde el menu superior derecho:
+
+![Captura de pantalla de 2022-06-28 14-44-23](https://user-images.githubusercontent.com/83187517/176259692-e0cc59c4-d7a6-49a7-93c0-f58d50492a2d.png)
+
+Luego en la barra izquierda, en la parte inferior se encuentra la configuración de usuarios. En este menu, en la esquina superior derecha se encuentra el botón para desbloquear la configuración, ingresando la clave de administrador:
+
+![Captura de pantalla de 2022-06-28 14-44-56](https://user-images.githubusercontent.com/83187517/176259965-51ee6e5b-699b-4c9b-b42d-8355034f4ef4.png)
+
+![Captura de pantalla de 2022-06-28 14-45-02](https://user-images.githubusercontent.com/83187517/176259982-26e10634-8641-481b-954d-bcb2ca1e06ad.png)
+
+Una vez desbloqueado, se puede agregar un usuario nuevo desde la esquina superior derecha:
+
+![Captura de pantalla de 2022-06-28 14-45-11](https://user-images.githubusercontent.com/83187517/176260180-e8d96ff6-2ece-4ac9-814a-3e747c87564a.png)
+
+Finalmente, se rellena el formulario con los datos del usuario a ingresar:
+
+![Captura de pantalla de 2022-06-28 14-46-00](https://user-images.githubusercontent.com/83187517/176260280-288a37e5-32d2-4fc1-bfae-061345eb4ffa.png)
+
+
+</details>
+
+<br/>
+
 
 Esto debe realizarse para cada usuario que utilice el sistema.
 
@@ -111,7 +149,7 @@ Una vez realizada la conexion exitosamente, se pueden agregar los usuarios desde
 
 ![image](https://user-images.githubusercontent.com/83187517/176068269-e6986a09-5be3-4445-8e11-923afc9bd15a.png)
 
-Aqui se deben ingresar los datos de los usuarios junto con los permisos que posee. Notar que estos deben coincidir con los usuarios y contraseñas de los usuarios agregados anteriormente al sistema operativo mediante `sudo adduser usuario_sftp`.
+Aqui se deben ingresar los datos de los usuarios junto con los permisos que posee. Notar que estos deben coincidir con los usuarios y contraseñas de los usuarios agregados anteriormente al sistema operativo mediante los pasos anteriores.
 
 ![image](https://user-images.githubusercontent.com/83187517/176068593-6cdad4ff-7d13-4206-acf6-3f890b2e9b39.png)
 
