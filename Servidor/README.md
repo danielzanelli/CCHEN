@@ -15,7 +15,7 @@ Se pueden descargar versiones del sistema operativo Ubuntu [aqui](https://releas
 
 <br/>
 
-#### Configuración usuarios
+### Configuración usuarios
 
 Una vez instalado el sistema operativo, se deben crear los usuarios. Para esta implementación se considera un usuario Admin, con permisos de administrador sobre el equipo; un usuario 'usuario_sftp', quien almacenará todos los archivos de datos en su carpeta local; y usuarios específicos para cada usuario real del sistema.
 Los usuarios personales deben ser creados con claves únicas personales por razones de seguridad. 
@@ -44,7 +44,7 @@ Finalmente, agregaremos el usuario 'usuario_sftp' y configuraremos su carpeta ba
 
 <br/>
 
-#### Configuración SFTP
+### Configuración SFTP
 
 Para instalar el servicio de SFTP (Secure File Transfer Protocol) se pueden seguir los siguientes pasos, para mayor detalle revisar [esta guia](https://linuxhint.com/setup-sftp-server-ubuntu/).
 
@@ -70,7 +70,7 @@ Finalmente, se debe reinicar el servicio ssh:
 
 <br/>
 
-#### Configuración MongoDB
+### Configuración MongoDB
 
 Para instalar la base de datos MongoDB en el servidor Ubuntu 20.04 se pueden seguir los siguientes pasos. Para mayor detalle favor de revisar [esta guia](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-20-04-es).
 
