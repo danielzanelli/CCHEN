@@ -10,6 +10,12 @@ Para instalar las dependencias mediante el gestor de paquetes de python (pip):
 
 `pip install paramiko pymongo pyvisa numpy pandas tkinter pyqt5 pyqtgraph`
 
+Para sistemas operativos basados en Debian (como Ubuntu) se debe instalar `tk` por separado:
+
+`pip install paramiko pymongo numpy pandas pyqt5 pyqtgraph`
+
+`sudo apt install python3-tk`
+
 <br/>
 
 Luego, para ejecutar:
