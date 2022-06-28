@@ -172,13 +172,8 @@ class DataWorker(QObject):
                 else:
                     inicio = 0
                     
-                if 'PT_OFF ' in header:
-                    pt_off = float(header.split('PT_OFF ')[-1].split(';')[0])
-                else:
-                    pt_off = 0
-                    
                 incremento = float(header.split('XINCR ')[-1].split(';')[0])
-                x = np.linspace(inicio, inicio + len(y)*incremento, len(y)) - pt_off * incremento        
+                x = np.linspace(inicio, inicio + len(y)*incremento, len(y))            
 
                 datos = {'x':x, 'y':y, 'header': header}    
                 
@@ -200,8 +195,11 @@ class Lab_Widget(Ui_Widget):
         self.carpeta_local = ''
         self.carpeta_imagenes = ''
         self.timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
-        self.color_palette = ['b', 'g', 'r', 'c', 'm', 'y', 'k']     
-        self.manager = pyvisa.ResourceManager()
+        self.color_palette = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
+        try:
+            self.manager = pyvisa.ResourceManager()
+        except:
+            self.manager = None
         self.dispositivos_disponibles = []
         self.dispositivos_conectados = {}
         self.datos = {}
@@ -399,7 +397,10 @@ class Lab_Widget(Ui_Widget):
 
     def buscar_dispositivos(self):
 
-        self.dispositivos_disponibles = [ x for x in self.manager.list_resources()]
+        try:
+            self.dispositivos_disponibles = [ x for x in self.manager.list_resources()]
+        except:
+            self.dispositivos_disponibles = []
 
         items = []
         i=0
@@ -1820,7 +1821,6 @@ class Lab_Widget(Ui_Widget):
                 resumen = json.load(archivo)
             
             for nombre_dispositivo in resumen:
-                
                 
                 dispositivo = self.manager.open_resource(nombre_dispositivo)
                 try:
