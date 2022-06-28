@@ -132,9 +132,13 @@ Luego, se debe realizar la configuración de red de MongoDB accediendo al archiv
 Y cambiando la linea que dice `bindIp: 127.0.0.1` por la IP del servidor. Por ejemplo esta seccion puede quedar como:
 
 > #network interfaces
+> 
 > net:
+> 
 >   port: 27017
+>   
 >   bindIp: 200.28.103.190
+>   
 
 Tras instalada la base de datos, se puede inicializar usando:
 
