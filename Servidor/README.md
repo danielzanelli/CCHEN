@@ -38,7 +38,7 @@ Finalmente, agregaremos el usuario 'usuario_sftp' y configuraremos su carpeta ba
 
 `sudo adduser usuario_sftp`
 
-`sudo groupadd sftp`
+`sudo usermod -a -G sftp usuario_sftp`
 
 `sudo chmod 777 /home/sftp_user/`
 
