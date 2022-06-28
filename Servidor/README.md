@@ -107,7 +107,7 @@ Desde el mismo servidor, se puede conectar directamente a `localhost`. En caso d
 
 ![image](https://user-images.githubusercontent.com/83187517/176067303-f963b31c-ef81-4e54-b204-b543f44c83b7.png)
 
-Una vez realizada la conexion exitosamente, se pueden agregar los usuarios desde el panel de la izquierda, accediendo a `System`, luego a `admin` y finalmente haciendo click derecho en `Users` para eleccionar la opción `Add User`:
+Una vez realizada la conexion exitosamente, se pueden agregar los usuarios desde el panel de la izquierda, accediendo a `System`, luego a `admin` y finalmente haciendo click derecho en `Users` para eleccionar la opción `Add User...`:
 
 ![image](https://user-images.githubusercontent.com/83187517/176068269-e6986a09-5be3-4445-8e11-923afc9bd15a.png)
 
