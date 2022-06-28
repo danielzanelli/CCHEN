@@ -111,7 +111,7 @@ Una vez realizada la conexion exitosamente, se pueden agregar los usuarios desde
 
 ![image](https://user-images.githubusercontent.com/83187517/176068269-e6986a09-5be3-4445-8e11-923afc9bd15a.png)
 
-Aqui se deben ingresar los datos delos usuarios. Notar que estos deben coincidir con los usuarios y contraseñas de los usuarios agregados al sistema mediante `sudo adduser usuario_sftp`.
+Aqui se deben ingresar los datos de los usuarios junto con los permisos que posee. Notar que estos deben coincidir con los usuarios y contraseñas de los usuarios agregados anteriormente al sistema operativo mediante `sudo adduser usuario_sftp`.
 
 ![image](https://user-images.githubusercontent.com/83187517/176068593-6cdad4ff-7d13-4206-acf6-3f890b2e9b39.png)
 
