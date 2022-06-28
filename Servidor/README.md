@@ -26,18 +26,18 @@ Los usuarios personales deben ser creados con claves únicas personales por razo
   <summary>Agregar usuarios por linea de comandos</summary>
   <br/>
   
-Estos usuarios se pueden agregar al servidor usando el comando:
-
-`sudo adduser nombre_usuario`
-
-Estos usuarios deben pertenecer al grupo 'sftp', el cual puede ser creado utilizando el comando:
-
-`sudo groupadd sftp`
-
-El usuario se agrega al grupo mediante:
-
-`sudo usermod -a -G sftp nombre_usuario`
-
+> Estos usuarios se pueden agregar al servidor usando el comando:
+> 
+> `sudo adduser nombre_usuario`
+> 
+> Estos usuarios deben pertenecer al grupo 'sftp', el cual puede ser creado utilizando el comando:
+> 
+> `sudo groupadd sftp`
+> 
+> El usuario se agrega al grupo mediante:
+> 
+> `sudo usermod -a -G sftp nombre_usuario`
+> 
 </details>
 
 <br/>
@@ -46,24 +46,24 @@ El usuario se agrega al grupo mediante:
   <summary>Agregar usuarios por interfaz gráfica</summary>
   <br/>
   
-Se puede acceder a la configuración de usuarios desde el menu superior derecho:
-
-![Captura de pantalla de 2022-06-28 14-44-23](https://user-images.githubusercontent.com/83187517/176259692-e0cc59c4-d7a6-49a7-93c0-f58d50492a2d.png)
-
-Luego en la barra izquierda, en la parte inferior se encuentra la configuración de usuarios. En este menu, en la esquina superior derecha se encuentra el botón para desbloquear la configuración, ingresando la clave de administrador:
-
-![Captura de pantalla de 2022-06-28 14-44-56](https://user-images.githubusercontent.com/83187517/176259965-51ee6e5b-699b-4c9b-b42d-8355034f4ef4.png)
-
-![Captura de pantalla de 2022-06-28 14-45-02](https://user-images.githubusercontent.com/83187517/176259982-26e10634-8641-481b-954d-bcb2ca1e06ad.png)
-
-Una vez desbloqueado, se puede agregar un usuario nuevo desde la esquina superior derecha:
-
-![Captura de pantalla de 2022-06-28 14-45-11](https://user-images.githubusercontent.com/83187517/176260180-e8d96ff6-2ece-4ac9-814a-3e747c87564a.png)
-
-Finalmente, se rellena el formulario con los datos del usuario a ingresar:
-
-![Captura de pantalla de 2022-06-28 14-46-00](https://user-images.githubusercontent.com/83187517/176260280-288a37e5-32d2-4fc1-bfae-061345eb4ffa.png)
-
+> Se puede acceder a la configuración de usuarios desde el menu superior derecho:
+> 
+> ![Captura de pantalla de 2022-06-28 14-44-23](https://user-images.githubusercontent.com/83187517/176259692-e0cc59c4-d7a6-49a7-93c0-f58d50492a2d.png)
+> 
+> Luego en la barra izquierda, en la parte inferior se encuentra la configuración de usuarios. En este menu, en la esquina superior derecha se encuentra el botón para desbloquear la configuración, ingresando la clave de administrador:
+> 
+> ![Captura de pantalla de 2022-06-28 14-44-56](https://user-images.githubusercontent.com/83187517/176259965-51ee6e5b-699b-4c9b-b42d-8355034f4ef4.png)
+> 
+> ![Captura de pantalla de 2022-06-28 14-45-02](https://user-images.githubusercontent.com/83187517/176259982-26e10634-8641-481b-954d-bcb2ca1e06ad.png)
+> 
+> Una vez desbloqueado, se puede agregar un usuario nuevo desde la esquina superior derecha:
+> 
+> ![Captura de pantalla de 2022-06-28 14-45-11](https://user-images.githubusercontent.com/83187517/176260180-e8d96ff6-2ece-4ac9-814a-3e747c87564a.png)
+> 
+> Finalmente, se rellena el formulario con los datos del usuario a ingresar:
+> 
+> ![Captura de pantalla de 2022-06-28 14-46-00](https://user-images.githubusercontent.com/83187517/176260280-288a37e5-32d2-4fc1-bfae-061345eb4ffa.png)
+> 
 
 </details>
 
