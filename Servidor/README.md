@@ -58,14 +58,12 @@ Una vez instalado, se debe modificar el archivo de configuración mediante el co
 
 Al final del archivo, se deben agregar las siguientes líneas:
 
-<code>
-  Match group sftp <br/>
-  ChrootDirectory /home <br/>
-  ForceCommand internal-sftp <br/>
-<code/>
+`Match group sftp`
+`ChrootDirectory /home`
+`ForceCommand internal-sftp`
 
 Finalmente, se debe reinicar el servicio ssh:
-  
+
 `sudo systemctl restart ssh`
 
 <br/>
