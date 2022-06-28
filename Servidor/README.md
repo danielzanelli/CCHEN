@@ -129,7 +129,7 @@ Luego, se debe realizar la configuración de red de MongoDB accediendo al archiv
 
 `sudo nano /etc/mongod.conf`
 
-Y cambiando la linea que dice `bindIp: 127.0.0.1` por la IP del servidor. Por ejemplo esta seccion puede quedar como:
+Donde se debe agregar a la linea que dice `bindIp: 127.0.0.1`, la IP del servidor separada por una coma. Por ejemplo esta seccion puede quedar como:
 
 > #network interfaces
 > 
@@ -137,7 +137,7 @@ Y cambiando la linea que dice `bindIp: 127.0.0.1` por la IP del servidor. Por ej
 > 
 >   port: 27017
 >   
->   bindIp: 200.28.103.190
+>   bindIp: 127.0.0.1, 200.28.103.190
 >   
 
 Tras instalada la base de datos, se puede inicializar usando:
