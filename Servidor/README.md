@@ -77,7 +77,7 @@ Para instalar la base de datos MongoDB en el servidor Ubuntu 20.04 se pueden seg
 Para descargar e instalar MongoDB se pueden ejecutar los siguientes comandos:
 
 `sudo apt install curl`
-  
+
 `curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -`
 
 `echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list`
@@ -88,17 +88,18 @@ Para descargar e instalar MongoDB se pueden ejecutar los siguientes comandos:
 
 Tras instalada la base de datos, se puede inicializar usando:
 
+
 `sudo systemctl start mongod.service`
 
 Finalmente, para que la base de datos se inicie al arrancar el sistema operativo:
 
 `sudo systemctl enable mongod`
-  
+
 Ahora que tenemos la base de datos activa, podemos administrar los usuarios para que accedan a esta utilizando sus usuarios y contraseñas. Cabe destacar que estos usuarios y contrseñas deben coincidir con los usuarios y contraseñas utilizadas en la reación de usuarios en el servidor.
 Esto puede realizarse con mayor facilidad utilizando una GUI capaz de administrar las bases de datos Mongo, como Robo3T. Las ultimas versiones de este software se pueden encontrar [aqui](https://github.com/Studio3T/robomongo/releases).
 
 Tras instalar y ejecutar el software, nos debemos conectar al servicio MongoDB del servidor. Para agregar una nueva conexón se puede presionar el enlace `Create`:
-  
+
 ![image](https://user-images.githubusercontent.com/83187517/176067090-bc91775c-28bb-41a2-945f-85b8d5a24ceb.png)
 
 Desde el mismo servidor, se puede conectar directamente a `localhost`. En caso de estar accediendo desde otro equipo desde la red, se debe especificar la IP del servidor.
@@ -106,7 +107,7 @@ Desde el mismo servidor, se puede conectar directamente a `localhost`. En caso d
 ![image](https://user-images.githubusercontent.com/83187517/176067303-f963b31c-ef81-4e54-b204-b543f44c83b7.png)
 
 Una vez realizada la conexion exitosamente, se pueden agregar los usuarios desde el panel de la izquierda, accediendo a `System`, luego a `admin` y finalmente haciendo click derecho en `Users` para eleccionar la opción `Add User`:
-  
+
 ![image](https://user-images.githubusercontent.com/83187517/176068269-e6986a09-5be3-4445-8e11-923afc9bd15a.png)
 
 Aqui se deben ingresar los datos delos usuarios. Notar que estos deben coincidir con los usuarios y contraseñas de los usuarios agregados al sistema mediante `sudo adduser usuario_sftp`.
