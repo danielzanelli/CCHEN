@@ -1,6 +1,6 @@
 # AppOffice
 
-### Modo de uso
+### Instalación
 El programa puede ser ejecutado directamente utilizando python 3. En caso de no tenerlo instalado, se puede descargar [aqui](https://www.python.org/downloads/).
 
 <br/>
