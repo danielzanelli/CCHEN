@@ -7,7 +7,12 @@ El programa puede ser ejecutado directamente utilizando python 3. En caso de no 
 
 Para instalar las dependencias mediante el gestor de paquetes de python (pip):
 
-`pip install paramiko pymongo numpy pandas tkinter pyqt5 pyqtgraph`
+`pip install paramiko pymongo numpy pandas tk pyqt5 pyqtgraph`
+
+Para sistemas operativos basados en Debian (como Ubuntu) se debe instalar `tk` por separado:
+
+`pip install paramiko pymongo numpy pandas pyqt5 pyqtgraph`
+`sudo apt install python3-tk`
 
 <br/>
 
