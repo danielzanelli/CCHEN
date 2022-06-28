@@ -8,17 +8,21 @@ El programa puede ser ejecutado directamente utilizando python 3. En caso de no 
 
 Para instalar las dependencias mediante el gestor de paquetes de python (pip):
 
-`pip install paramiko pymongo pyvisa numpy pandas tkinter pyqt5 pyqtgraph`
+`pip install paramiko pymongo pyvisa numpy pandas tk pyqt5 pyqtgraph`
 
-Para sistemas operativos basados en Debian (como Ubuntu) se debe instalar `tk` por separado:
+Para sistemas operativos basados en Debian (como Ubuntu) se debe instalar `tk` (Tkinter) por separado:
 
-`pip install paramiko pymongo numpy pandas pyqt5 pyqtgraph`
+`pip install paramiko pymongo pyvisa numpy pandas pyqt5 pyqtgraph`
 
 `sudo apt install python3-tk`
 
+En caso de encontrarse con el error `qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.` en sistemas operativos Debian, este puede solucionarse instalando la dependencia:
+
+`sudo apt install libxcb-xinerama0`
+
 <br/>
 
-Luego, para ejecutar:
+Finalmente, una vez instaladas las dependencias del programa, este se puede ejecutar utilizando:
 
 `python AppLab.py`
 
