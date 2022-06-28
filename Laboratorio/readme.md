@@ -1,6 +1,6 @@
 ## Applicacion de Laboratorio
 
-### Modo de uso
+### Instalación
 
 El programa puede ser ejecutado directamente utilizando python 3. En caso de no tenerlo instalado, se puede descargar [aqui](https://www.python.org/downloads/).
 
@@ -22,11 +22,15 @@ En caso de encontrarse con el error `qt.qpa.plugin: Could not load the Qt platfo
 
 <br/>
 
+### Modo de uso
+
 Finalmente, una vez instaladas las dependencias del programa, este se puede ejecutar utilizando:
 
 `python AppLab.py`
 
 <br/>
+
+### Compilacion a Windows
 
 El software puede ser complilado a programa de windows (.exe) utilizando [pyinstaller](https://pyinstaller.org/en/stable/):
 
