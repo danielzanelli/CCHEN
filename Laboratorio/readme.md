@@ -1,4 +1,4 @@
-# Applicacion de Laboratorio
+# Aplicación de Laboratorio
 
 
 <br>
