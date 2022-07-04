@@ -104,6 +104,14 @@
 
 <br/>
 
+## Drivers Osciloscopios
+
+Este software requiere que estén instalados los drivers para reconocer y comunicarse con los osciloscopios. El software fue desarrollado específicamente para ser compatible con osciloscopios `Tektronix`, cuyos drivers pueden encontrarse en [este enlace](https://www.tek.com/en/support/software/driver/tekvisa-connectivity-software-v411). 
+
+Sin embargo, el software es compatible con osciloscopios que operen usando el protocolo `VISA`, por lo que es posible instalar drivers de otros proveedores, como [NI-VISA](https://www.ni.com/es-cl/support/downloads/drivers/download.ni-visa.html).  Para mayor información respecto a los drivers y la compatibilidad con su osciloscopio contacte su proveedor.
+
+<br/>
+
 ## Compilacion Código Fuente a Programa Windows
 
 El codigo fuente en `/src/` puede ser complilado a programa de Windows (.exe) utilizando [pyinstaller](https://pyinstaller.org/en/stable/), abriendo una terminal en la carpeta y ejecutando el comando:
