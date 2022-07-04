@@ -23,7 +23,7 @@ Los usuarios personales deben ser creados con claves únicas personales por razo
 <br/>
 
 <details>
-  <summary>Agregar usuarios por linea de comandos</summary>
+  <summary> <h3> Agregar usuarios por linea de comandos </h3> </summary>
   <br/>
   
 > Estos usuarios se pueden agregar al servidor usando el comando:
@@ -43,7 +43,7 @@ Los usuarios personales deben ser creados con claves únicas personales por razo
 <br/>
 
 <details>
-  <summary>Agregar usuarios por interfaz gráfica</summary>
+  <summary> <h3> Agregar usuarios por interfaz gráfica </h3> </summary>
   <br/>
   
 > Se puede acceder a la configuración de usuarios desde el menu superior derecho:
