@@ -104,7 +104,7 @@
 
 <br/>
 
-## Compilacion Código Fuente a Windows
+## Compilacion Código Fuente a Programa Windows
 
 El codigo fuente en `/src/` puede ser complilado a programa de Windows (.exe) utilizando [pyinstaller](https://pyinstaller.org/en/stable/), abriendo una terminal en la carpeta y ejecutando el comando:
 
