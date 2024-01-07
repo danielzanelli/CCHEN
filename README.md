@@ -43,7 +43,16 @@ https://user-images.githubusercontent.com/83187517/175224209-9944eeab-92e5-46e7-
 - Can be configured locally or thrugh the cloud
 
 
+
+
+
 ---
+
+---
+
+---
+
+
 
 
 # Sistema de Adquisición, Almacenamiento y Visualización de Datos Experimentales
