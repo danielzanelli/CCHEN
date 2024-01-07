@@ -1,3 +1,51 @@
+# Experimental Data Acquisition, Storage and Visualization System
+
+##### Author: Daniel Zanelli
+
+<br/>
+
+This system works using two desktop applications: One to be used in the laboratory when entering data, both manually and through oscilloscopes, saving it locally and uploading it to the server; and another to be used at the office, which is able to search, explore and download experimental data. Both communicate with the same server, on which the data is stored.
+
+<br/>
+<br/>
+
+## Laboratory Application
+- Manual entry of experimental data
+- Connection of oscilloscopes
+- Acquisition of curves
+- Automatic capture through trigger
+- Local data storage
+- Data upload to server
+
+
+https://user-images.githubusercontent.com/83187517/175224138-97df8bff-c9b2-4c5e-b633-603eb4fb01b7.mp4
+
+
+<br/>
+
+
+## Office Application
+- Server connection
+- Data searches according to parameter querys
+- Explore server files directly
+
+
+https://user-images.githubusercontent.com/83187517/175224209-9944eeab-92e5-46e7-9830-d795e05be1e6.mp4
+
+<br/>
+
+
+
+## Servidor
+- MongoDB database
+- SFTP Server
+- User administration
+- Can be configured locally or thrugh the cloud
+
+
+---
+
+
 # Sistema de Adquisición, Almacenamiento y Visualización de Datos Experimentales
 
 ##### Autor: Daniel Zanelli
