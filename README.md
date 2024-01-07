@@ -44,15 +44,20 @@ https://user-images.githubusercontent.com/83187517/175224209-9944eeab-92e5-46e7-
 
 
 
+<br/>
+<br/>
+<br/>
 
+---
 
 ---
 
 ---
 
----
 
-
+<br/>
+<br/>
+<br/>
 
 
 # Sistema de Adquisición, Almacenamiento y Visualización de Datos Experimentales
