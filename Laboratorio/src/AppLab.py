@@ -25,17 +25,17 @@ import json
 import pyvisa
 import numpy as np
 import pandas as pd
-from PyQt5.QtGui import QPixmap ,QTextCursor, QIcon
-from PyQt5.QtCore import Qt, QObject ,pyqtSignal, QThread
-from PyQt5 import QtWidgets
+from PySide6.QtGui import QPixmap ,QTextCursor, QIcon
+from PySide6.QtCore import Qt, QObject, Signal, QThread
+from PySide6 import QtWidgets
 from tkinter import Tk
 from tkinter.filedialog import askdirectory, askopenfilename, asksaveasfilename
 
 
 class TriggerWorker(QObject):
 
-    finished = pyqtSignal()
-    trigger = pyqtSignal(int)
+    finished = Signal()
+    trigger = Signal(int)
 
     def __init__(self):
         super().__init__()
@@ -71,8 +71,8 @@ class TriggerWorker(QObject):
 
 class ImageWorker(QObject):
 
-    finished = pyqtSignal()
-    msg = pyqtSignal(str)
+    finished = Signal()
+    msg = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -112,8 +112,8 @@ class ImageWorker(QObject):
 
 class DataWorker(QObject):
 
-    finished = pyqtSignal()
-    response = pyqtSignal(object)
+    finished = Signal()
+    response = Signal(object)
 
     def __init__(self):
         super().__init__()
@@ -1950,4 +1950,4 @@ ui = Lab_Widget(Widget)
 Widget.show()
 Widget.setWindowTitle('Applicacion de Laboratorio')
 ui.seleccionar_carpeta()
-sys.exit(app.exec_())
+sys.exit(app.exec())

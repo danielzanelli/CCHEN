@@ -61,7 +61,7 @@
 > 
 > <br>
 > 
-> ## Instalación
+> ## Instalación Dependencias
 > 
 > <br>
 > 
@@ -75,30 +75,37 @@
 > 
 > Antes de ejecutar, se deben instalar las dependencias. Si no cuenta con el gestor de paquetes de python (pip) instalado, puede ser instalado en sistemas operativos Windows siguiendo [esta guia](https://technetters.com/como-instalar-pip-para-python-windows/). En sistemas operativos basados en debian (como Ubuntu), se puede instalar simplemente utilizando el comando:
 > 
-> `sudo apt install python3-pip`
-> 
+> ```
+> sudo apt install python3-pip
+> ```
 > Para instalar las dependencias del software usando pip:
 > 
-> `pip install paramiko pymongo pyvisa numpy pandas tk pyqt5 pyqtgraph`
-> 
+> ```
+> pip install paramiko pymongo pyvisa numpy pandas tk pyside6 pyqtgraph
+> ```
 > Para sistemas operativos basados en Debian (como Ubuntu) se debe instalar `tk` (Tkinter) por separado:
 > 
-> `pip install paramiko pymongo pyvisa numpy pandas pyqt5 pyqtgraph`
+> ```
+> pip install paramiko pymongo pyvisa numpy pandas pyside6 pyqtgraph
 > 
-> `sudo apt install python3-tk`
-> 
+> sudo apt install python3-tk
+> ```
 > En caso de encontrarse con el error `qt.qpa.plugin: Could not load the Qt platform plugin "xcb" in "" even though it was found.` en sistemas operativos Debian, este puede > solucionarse instalando la dependencia:
 > 
-> `sudo apt install libxcb-xinerama0`
-> 
+> ```
+> sudo apt install libxcb-xinerama0
+> ```
 > 
 > <br/>
 > 
-> ## Ejecución
+> ## Ejecución de Codigo Fuente
 > 
 > Finalmente, una vez instaladas las dependencias del programa, este se puede ejecutar abriendo una consola en la carpeta que contiene los archivos y utilizando el comando:
 > 
-> `python AppLab.py`
+> 
+> ```
+> python ./src/AppLab.py
+> ```
 > 
 > </details>
 
@@ -116,9 +123,10 @@ Sin embargo, el software es compatible con osciloscopios que operen usando el pr
 
 El codigo fuente en `/src/` puede ser complilado a programa de Windows (.exe) utilizando [pyinstaller](https://pyinstaller.org/en/stable/), abriendo una terminal en la carpeta y ejecutando el comando:
 
-`pyinstaller AppLab.py --icon icon.ico --windowed`
 
-<br/>
+```
+pyinstaller AppLab.py --icon icon.ico --windowed
+```
 
 Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y crear un acceso directo a AppLab.exe para mayor comodidad.
 
@@ -126,11 +134,14 @@ Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y cr
 
 Se pueden realizar modificaciones a las ventanas de la interfaz gráfica disponibles en la carpeta `/ui/`. Estos pueden ser modificados con diseñadores de software QT, como QtCreator, para mas información sobre la plataforma Qt puede acceder [aqui](https://www.qt.io/product/development-tools). 
 
-En caso de querer recompilar los archivos `.ui`, esto se puede realizar usando la librería python `pyuic`. Para mayor información sobre esta librería y su instalación, puede acceder [aqui](https://pypi.org/project/pyuic5-tool/). Los archivos `.ui` pueden compilarse a `.py` mediante el comando (tomando como ejemplo el archivo `ventanaPrincipal.ui`):
+En caso de querer recompilar los archivos `.ui`, esto se puede realizar usando `pyside6-uic` desde la consola gracias a la libreria [pyside6](https://doc.qt.io/qtforpython-6/gettingstarted.html), en caso de no tenerla instalada se puede hacer mediante  `pip `:
 
-<br/>
+```
+pip install pyside6
+```
+Los archivos `.ui` pueden compilarse a `.py` mediante el comando (tomando como ejemplo el archivo `ventanaPrincipal.ui`):
 
-`pyuic5 -x .\ventanaPrincipal.ui -o ventanaPrincipal.py`
-
-<br/>
+```
+pyside6-uic -x .\ventanaPrincipal.ui -o ventanaPrincipal.py
+```
 
