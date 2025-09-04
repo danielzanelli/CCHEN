@@ -43,7 +43,7 @@ class TriggerWorker(QObject):
         self.pause = False
 
     def set_source(self, source):
-        self.device = pyvisa.ResourceManager().open_resource(source)
+        self.device = pyvisa.ResourceManager('@py').open_resource(source)
         self.device.timeout = 10 * 1000
         self.current_count = self.device.query('ACQuire:NUMACq?')
         self.source = source
@@ -118,10 +118,10 @@ class DataWorker(QObject):
     def __init__(self):
         super().__init__()
 
-    def set_device(self, device_name, channels): #channels = ['ch1', 'ch2']
+    def set_device(self, device_name, channels): #channels = ['CH1':{'nombre': 'ch1', 'datapoints':10000}, 'CH2':{'nombre': 'ch2', 'datapoints':10000}]
         self.device_name =  device_name
         self.channels = channels
-        self.device = pyvisa.ResourceManager().open_resource(device_name)
+        self.device = pyvisa.ResourceManager('@py').open_resource(device_name)
         self.device.timeout = 10 * 1000
         self.done = False
 
@@ -129,7 +129,9 @@ class DataWorker(QObject):
 
         i=0
 
-        for channel in self.channels:
+        for chan_id in self.channels:
+
+            channel = self.channels[chan_id]
 
             i+=1
         
@@ -138,22 +140,27 @@ class DataWorker(QObject):
                 self.device.write(':DATA:ENCDG ASCII')
                 self.device.write(':DATA:WIDTH 2')
                 self.device.write(':DATA:START 1')
-                self.device.write(':DATA:STOP 10000')
+                self.device.write(':DATA:STOP '+str(channel['datapoints']))
                 self.device.write(':HEADER 1')
-                self.device.write(':DATA:SOURCE '+ channel)
+                self.device.write(':DATA:SOURCE '+ chan_id)
 
                 #self.device.write(':WAVFRM?')
                 #res = str(self.device.read_bytes(10000000000000000000, break_on_termchar='\n'))
                 res = self.device.query(':WAVFRM?')
 
-                header = res.split(':CURVE')[0]
-                body = res.split(':CURVE')[-1]
+                if ':CURV' in res[:1000]:
+                    header = res.split(':CURV')[0]
+                    body = res.split(':CURV')[-1]
+                    
+                elif ':CURVE' in res[:1000]:
+                    header = res.split(':CURVE')[0]
+                    body = res.split(':CURVE')[-1]
+                    
+                else:
+                    raise ValueError('No se encontró información de la curva')
 
-                if header == body:
-                    print('Canal ' + channel + ' sin datos')
-                    self.response.emit({'exito' : False, 'dispositivo' : self.device_name, 'canal' : channel, 'tiempo': time.time()-ti, 'ultimo':i==len(self.channels)})
-                    continue
-
+                print(header)
+                
                 y = []
                 for x in body.split('\\n')[0].split(','):
                     try:
@@ -163,26 +170,47 @@ class DataWorker(QObject):
                         print('x:',x)
                         pass
                 y = np.array(y)
-                y_zero = float(header.split('YZERO ')[-1].split(';')[0])
-                y_mult = float(header.split('YMULT ')[-1].split(';')[0])
+
+                if 'YZERO ' in header:
+                    y_zero = float(header.split('YZERO ')[-1].split(';')[0])
+                elif 'YZE ' in header:
+                    y_zero = float(header.split('YZE ')[-1].split(';')[0])
+                else:
+                    y_zero = 0
+
+                if 'YMULT ' in header:
+                    y_mult = float(header.split('YMULT ')[-1].split(';')[0])
+                elif 'YMU ' in header:
+                    y_mult = float(header.split('YMU ')[-1].split(';')[0])
+                else:
+                    raise ValueError('No se encontró información de escalado vertical en el encabezado')
+
                 y = y_zero + y * y_mult
                 
                 if 'XZERO ' in header:
                     inicio = float(header.split('XZERO ')[-1].split(';')[0])
+                elif 'XZE ' in header:
+                    inicio = float(header.split('XZE ')[-1].split(';')[0])
                 else:
                     inicio = 0
                     
-                incremento = float(header.split('XINCR ')[-1].split(';')[0])
-                x = np.linspace(inicio, inicio + len(y)*incremento, len(y))            
+                if 'XINCR ' in header:
+                    incremento = float(header.split('XINCR ')[-1].split(';')[0])
+                elif 'XIN ' in header:
+                    incremento = float(header.split('XIN ')[-1].split(';')[0])
+                else:
+                    raise ValueError('No se encontró información de incremento en el encabezado')
+                
+                x = np.linspace(inicio, inicio + len(y)*incremento, len(y))
 
                 datos = {'x':x, 'y':y, 'header': header}    
                 
-                self.response.emit({'exito' : True, 'datos' : datos, 'dispositivo' : self.device_name, 'canal' : channel, 'tiempo': time.time()-ti, 'ultimo':i==len(self.channels)})
+                self.response.emit({'exito' : True, 'datos' : datos, 'dispositivo' : self.device_name, 'canal' : chan_id, 'tiempo': time.time()-ti, 'ultimo':i==len(self.channels)})
                 
             except Exception as e:
                 print('Error adquiriendo datos:')
                 print(str(e) + '\n')
-                self.response.emit({'exito' : False, 'dispositivo' : self.device_name, 'canal' : channel, 'tiempo': time.time()-ti, 'ultimo':i==len(self.channels)})
+                self.response.emit({'exito' : False, 'dispositivo' : self.device_name, 'canal' : chan_id, 'tiempo': time.time()-ti, 'ultimo':i==len(self.channels)})
 
         self.done = True
         self.finished.emit()
@@ -197,7 +225,7 @@ class Lab_Widget(Ui_Widget):
         self.timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
         self.color_palette = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
         try:
-            self.manager = pyvisa.ResourceManager()
+            self.manager = pyvisa.ResourceManager('@py')
         except:
             self.manager = None
         self.dispositivos_disponibles = []
@@ -593,9 +621,9 @@ class Lab_Widget(Ui_Widget):
         if nombre_osc == '':
             return        
             
-        for chan in self.dispositivos_conectados[nombre_osc]['canales']:
-            if chan['nombre'] in canales_disponibles:
-                canales_disponibles.remove(chan['nombre'])
+        for chan_id in self.dispositivos_conectados[nombre_osc]['canales']:
+            if chan_id in canales_disponibles:
+                canales_disponibles.remove(chan_id)
 
         self.ui_agregar_canal.canal.clear()
         self.ui_agregar_canal.canal.addItems(canales_disponibles)
@@ -806,7 +834,7 @@ class Lab_Widget(Ui_Widget):
             self.status.setText('Status: OK')
 
             self.dispositivos_conectados[osciloscopio]['canales'][canal] = {'nombre':nombre, 'datapoints':datapoints}
-
+            
             self.actualizar_canales()
 
             self.dialog_agregar_canal.done(1)
@@ -820,10 +848,11 @@ class Lab_Widget(Ui_Widget):
         items = []
         i=0
         for nombre_dispositivo in self.dispositivos_conectados:
-            for canal in self.dispositivos_conectados[nombre_dispositivo]['canales']:
+            for id_canal in self.dispositivos_conectados[nombre_dispositivo]['canales']:
+                canal = self.dispositivos_conectados[nombre_dispositivo]['canales'][id_canal]
                 item = QtWidgets.QTreeWidgetItem(i)
-                item.setText(0, self.dispositivos_conectados[nombre_dispositivo]['canales'][canal]['nombre'])
-                item.setText(1, canal['nombre'])
+                item.setText(0, canal['nombre'])
+                item.setText(1, id_canal)
                 item.setText(2, nombre_dispositivo + ' - ' + self.dispositivos_conectados[nombre_dispositivo]['modelo'])
                 item.setText(3, str(canal['datapoints']))
                 items.append(item)
@@ -833,11 +862,13 @@ class Lab_Widget(Ui_Widget):
         items = []
         i=0
         for nombre_dispositivo in self.dispositivos_conectados:
-            for canal in self.dispositivos_conectados[nombre_dispositivo]['canales']:
+            for id_canal in self.dispositivos_conectados[nombre_dispositivo]['canales']:
+                canal = self.dispositivos_conectados[nombre_dispositivo]['canales'][id_canal]
                 item = QtWidgets.QTreeWidgetItem(i)
-                item.setText(0, self.dispositivos_conectados[nombre_dispositivo]['canales'][canal]['nombre'])
-                item.setText(1, canal)
+                item.setText(0, canal['nombre'])
+                item.setText(1, id_canal)
                 item.setText(2, nombre_dispositivo + ' - ' + self.dispositivos_conectados[nombre_dispositivo]['modelo'])
+                item.setText(3, str(canal['datapoints']))
                 items.append(item)
         self.adquisicion_origen_datos.clear()
         self.adquisicion_origen_datos.addTopLevelItems(items)
@@ -858,23 +889,25 @@ class Lab_Widget(Ui_Widget):
     def eliminar_canal(self):
         try:
             osciloscopio = self.dispositivos_canales.selectedItems()[0].text(2).split(' - ')[0]
-            nombre_canal = self.dispositivos_canales.selectedItems()[0].text(1)
+            nombre_canal = self.dispositivos_canales.selectedItems()[0].text(0)
+
+            
 
             canal = None
-            for chan in self.dispositivos_conectados[osciloscopio]['canales']:
-                if self.dispositivos_conectados[osciloscopio]['canales'][chan]['nombre'] == nombre_canal:
-                    canal = chan
+            for chan_id in self.dispositivos_conectados[osciloscopio]['canales']:
+                if self.dispositivos_conectados[osciloscopio]['canales'][chan_id]['nombre'] == nombre_canal:
+                    canal = self.dispositivos_conectados[osciloscopio]['canales'][chan_id]
                     break
             if canal == None:
                 self.print('Error eliminando canal: Canal no encontrado')
                 self.status.setText('Status: Error')
                 self.dialog_eliminar_canal.done(1)
                 return
+            
+            del canal
 
-            del self.dispositivos_conectados[osciloscopio]['canales'][canal]
-
-            if canal in self.datos[osciloscopio]:
-                del self.datos[osciloscopio][canal]
+            if chan_id in self.datos[osciloscopio]:
+                del self.datos[osciloscopio][chan_id]
 
             self.actualizar_canales()
             self.dialog_eliminar_canal.done(1)
@@ -947,7 +980,7 @@ class Lab_Widget(Ui_Widget):
                 
                 worker = DataWorker()
                 thread = QThread()
-                worker.set_device(nombre_dispositivo, [chan['nombre'] for chan in canales])
+                worker.set_device(nombre_dispositivo, canales)
 
                 worker.moveToThread(thread)
                 thread.started.connect(worker.get_data)
@@ -1125,7 +1158,7 @@ class Lab_Widget(Ui_Widget):
 
     def auto(self):
         
-        if self.adquisicion_auto.text() == 'Auto':
+        if self.adquisicion_auto.text() == 'Auto Adquirir':
             self.print('Adquisicion automatica iniciada')
             self.adquisicion_auto.setText('Stop')
             self.adquisicion_auto_guardar.setEnabled(False)
@@ -1173,7 +1206,7 @@ class Lab_Widget(Ui_Widget):
 
         elif self.adquisicion_auto.text() == 'Stop':
             self.print('Adquisicion automatica detenida')
-            self.adquisicion_auto.setText('Auto')
+            self.adquisicion_auto.setText('Auto Adquirir')
             self.adquisicion_auto_guardar.setEnabled(True)
             self.adquisicion_auto_imagenes.setEnabled(True)
             self.adquisicion_seleccionar_carpeta_imagenes.setEnabled(True)

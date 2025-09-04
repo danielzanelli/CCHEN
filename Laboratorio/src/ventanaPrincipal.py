@@ -712,6 +712,7 @@ class Ui_Widget(object):
         self.adquisicion_auto_guardar.setText(QCoreApplication.translate("Widget", u"Auto Guardar", None))
         self.adquisicion_label_carpeta_imagenes.setText("")
         ___qtreewidgetitem6 = self.adquisicion_origen_datos.headerItem()
+        ___qtreewidgetitem6.setText(3, QCoreApplication.translate("Widget", u"Datapoints", None));
         ___qtreewidgetitem6.setText(2, QCoreApplication.translate("Widget", u"Dispositivo", None));
         ___qtreewidgetitem6.setText(1, QCoreApplication.translate("Widget", u"Canal", None));
         ___qtreewidgetitem6.setText(0, QCoreApplication.translate("Widget", u"Nombre", None));

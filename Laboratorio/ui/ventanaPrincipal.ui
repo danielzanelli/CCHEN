@@ -1746,6 +1746,11 @@ li.checked::marker { content: &quot;\2612&quot;; }
        <string>Dispositivo</string>
       </property>
      </column>
+     <column>
+      <property name="text">
+       <string>Datapoints</string>
+      </property>
+     </column>
     </widget>
     <widget class="QLabel" name="adquisicion_label_preview">
      <property name="geometry">
