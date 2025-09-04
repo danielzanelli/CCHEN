@@ -1,0 +1,26 @@
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+env/
+.env/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Archives and binaries
+*.zip
+*.dll
+*.exe
+*.so
+*.bak
+*.swp
+
+# Document backups and temp files
+*.tmp
