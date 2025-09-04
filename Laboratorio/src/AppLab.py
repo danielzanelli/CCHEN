@@ -555,10 +555,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_agregar_experimento = Ui_AgregarExperimento()
         self.ui_agregar_experimento.setupUi(self.dialog_agregar_experimento)
 
-        self.ui_agregar_experimento.cancelar.clicked.connect(self.dialog_agregar_experimento.done)
+        self.ui_agregar_experimento.cancelar.clicked.connect(lambda: self.dialog_agregar_experimento.done(1))
         self.ui_agregar_experimento.agregar.clicked.connect(self.agregar_experimento)
 
-        self.dialog_agregar_experimento.exec_()
+        self.dialog_agregar_experimento.exec()
 
     def popup_agregar_jornada(self):
         self.dialog_agregar_jornada = QtWidgets.QDialog()
@@ -570,20 +570,20 @@ class Lab_Widget(Ui_Widget):
         if not self.mongo_client == None:            
             self.ui_agregar_jornada.experimento.addItems([x['nombre'] for x in self.mongo_client.db.experimentos.find({})])
 
-        self.ui_agregar_jornada.cancelar.clicked.connect(self.dialog_agregar_jornada.done)
+        self.ui_agregar_jornada.cancelar.clicked.connect(lambda: self.dialog_agregar_jornada.done(1))
         self.ui_agregar_jornada.agregar.clicked.connect(self.agregar_jornada)
 
-        self.dialog_agregar_jornada.exec_()
+        self.dialog_agregar_jornada.exec()
 
     def popup_conectar_dispositivo_ip(self):
         self.dialog_conectar_dispositivo_ip = QtWidgets.QDialog()
         self.ui_conectar_dispositivo_ip = Ui_DispositivoIp()
         self.ui_conectar_dispositivo_ip.setupUi(self.dialog_conectar_dispositivo_ip)
 
-        self.ui_conectar_dispositivo_ip.cancelar.clicked.connect(self.dialog_conectar_dispositivo_ip.done)
+        self.ui_conectar_dispositivo_ip.cancelar.clicked.connect(lambda: self.dialog_conectar_dispositivo_ip.done(1))
         self.ui_conectar_dispositivo_ip.conectar.clicked.connect(self.conectar_dispositivo_ip)
 
-        self.dialog_conectar_dispositivo_ip.exec_()
+        self.dialog_conectar_dispositivo_ip.exec()
 
     def actualizar_canales_popup(self):
         
@@ -594,9 +594,9 @@ class Lab_Widget(Ui_Widget):
             return        
             
         for chan in self.dispositivos_conectados[nombre_osc]['canales']:
-            if chan in canales_disponibles:
-                canales_disponibles.remove(chan)
-                
+            if chan['nombre'] in canales_disponibles:
+                canales_disponibles.remove(chan['nombre'])
+
         self.ui_agregar_canal.canal.clear()
         self.ui_agregar_canal.canal.addItems(canales_disponibles)
 
@@ -607,14 +607,14 @@ class Lab_Widget(Ui_Widget):
         self.ui_agregar_canal.setupUi(self.dialog_agregar_canal)
 
 
-        self.ui_agregar_canal.cancelar.clicked.connect(self.dialog_agregar_canal.done)
+        self.ui_agregar_canal.cancelar.clicked.connect(lambda: self.dialog_agregar_canal.done(1))
         self.ui_agregar_canal.agregar.clicked.connect(self.agregar_canal)
 
         self.ui_agregar_canal.osciloscopio.addItems([x + ' - ' + self.dispositivos_conectados[x]['modelo'] for x in self.dispositivos_conectados])
         self.ui_agregar_canal.osciloscopio.currentIndexChanged.connect(self.actualizar_canales_popup)
         self.actualizar_canales_popup()
 
-        self.dialog_agregar_canal.exec_()
+        self.dialog_agregar_canal.exec()
 
     def popup_asignar_datapoint(self):        
         
@@ -626,7 +626,7 @@ class Lab_Widget(Ui_Widget):
         
         self.ui_asignar_datapoint.datapoint.setText(self.ingreso_archivos_locales.selectedItems()[0].text(0))
 
-        self.ui_asignar_datapoint.cancelar.clicked.connect(self.dialog_asignar_datapoint.done)
+        self.ui_asignar_datapoint.cancelar.clicked.connect(lambda: self.dialog_asignar_datapoint.done(1))
         self.ui_asignar_datapoint.asignar.clicked.connect(self.asignar_datapoint)
 
         
@@ -657,7 +657,7 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-        self.dialog_asignar_datapoint.exec_()
+        self.dialog_asignar_datapoint.exec()
 
     def popup_eliminar_archivo(self):        
         
@@ -667,7 +667,7 @@ class Lab_Widget(Ui_Widget):
         
         self.ui_eliminar_archivo.preview_graph.setBackground('white')
 
-        self.ui_eliminar_archivo.cancelar.clicked.connect(self.dialog_eliminar_archivo.done)
+        self.ui_eliminar_archivo.cancelar.clicked.connect(lambda: self.dialog_eliminar_archivo.done(1))
         self.ui_eliminar_archivo.eliminar.clicked.connect(self.eliminar_archivo)
 
 
@@ -699,7 +699,7 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-        self.dialog_eliminar_archivo.exec_()
+        self.dialog_eliminar_archivo.exec()
 
     def popup_eliminar_parametro(self):        
         
@@ -708,7 +708,7 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_parametro.setupUi(self.dialog_eliminar_parametro)
         
 
-        self.ui_eliminar_parametro.cancelar.clicked.connect(self.dialog_eliminar_parametro.done)
+        self.ui_eliminar_parametro.cancelar.clicked.connect(lambda: self.dialog_eliminar_parametro.done(1))
         self.ui_eliminar_parametro.eliminar.clicked.connect(self.eliminar_parametro)
 
         datapoint = self.ingreso_parametros.selectedItems()[0].text(0)
@@ -721,7 +721,7 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_parametro.unidad.setText(unidad)
         self.ui_eliminar_parametro.datapoint.setText(datapoint)
 
-        self.dialog_eliminar_parametro.exec_()
+        self.dialog_eliminar_parametro.exec()
 
     def popup_crear_parametro(self):        
         
@@ -729,10 +729,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_crear_parametro = Ui_CrearParametro()
         self.ui_crear_parametro.setupUi(self.dialog_crear_parametro)        
 
-        self.ui_crear_parametro.cancelar.clicked.connect(self.dialog_crear_parametro.done)
+        self.ui_crear_parametro.cancelar.clicked.connect(lambda: self.dialog_crear_parametro.done(1))
         self.ui_crear_parametro.crear.clicked.connect(self.crear_parametro)
 
-        self.dialog_crear_parametro.exec_()
+        self.dialog_crear_parametro.exec()
 
     def popup_subir(self):        
         
@@ -740,10 +740,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_subir = Ui_Subir()
         self.ui_subir.setupUi(self.dialog_subir)        
 
-        self.ui_subir.cancelar.clicked.connect(self.dialog_subir.done)
+        self.ui_subir.cancelar.clicked.connect(lambda: self.dialog_subir.done(1))
         self.ui_subir.subir.clicked.connect(self.subir)
 
-        self.dialog_subir.exec_()
+        self.dialog_subir.exec()
 
     def popup_guardar_descripcion(self):        
         
@@ -751,10 +751,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_guardar_descripcion = Ui_GuardarDescripcion()
         self.ui_guardar_descripcion.setupUi(self.dialog_guardar_descripcion)        
 
-        self.ui_guardar_descripcion.cancelar.clicked.connect(self.dialog_guardar_descripcion.done)
+        self.ui_guardar_descripcion.cancelar.clicked.connect(lambda: self.dialog_guardar_descripcion.done(1))
         self.ui_guardar_descripcion.si.clicked.connect(self.guardar_descripcion)
 
-        self.dialog_guardar_descripcion.exec_()
+        self.dialog_guardar_descripcion.exec()
         
     def popup_desconectar_dispositivo(self):
         try:
@@ -765,16 +765,17 @@ class Lab_Widget(Ui_Widget):
         self.ui_desconectar_dispositivo = Ui_DesconectarDispositivo()
         self.ui_desconectar_dispositivo.setupUi(self.dialog_desconectar_dispositivo)
         self.ui_desconectar_dispositivo.dispositivo.setText(nombre + ' - ' + self.dispositivos_conectados[nombre]['modelo'])
-        self.ui_desconectar_dispositivo.cancelar.clicked.connect(self.dialog_desconectar_dispositivo.done)
+        self.ui_desconectar_dispositivo.cancelar.clicked.connect(lambda: self.dialog_desconectar_dispositivo.done(1))
         self.ui_desconectar_dispositivo.desconectar.clicked.connect(self.desconectar_dispositivo)
 
-        self.dialog_desconectar_dispositivo.exec_()
+        self.dialog_desconectar_dispositivo.exec()
 
     def popup_eliminar_canal(self):
         try:
             nombre = self.dispositivos_canales.selectedItems()[0].text(0)
             canal = self.dispositivos_canales.selectedItems()[0].text(1)
             osciloscopio = self.dispositivos_canales.selectedItems()[0].text(2)
+            datapoints = self.dispositivos_canales.selectedItems()[0].text(3)
         except:
             return
 
@@ -785,11 +786,12 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_canal.nombre.setText(nombre)
         self.ui_eliminar_canal.canal.setText(canal)
         self.ui_eliminar_canal.osciloscopio.setText(osciloscopio)
+        self.ui_eliminar_canal.datapoints.setText(datapoints)
 
-        self.ui_eliminar_canal.cancelar.clicked.connect(self.dialog_eliminar_canal.done)
+        self.ui_eliminar_canal.cancelar.clicked.connect(lambda: self.dialog_eliminar_canal.done(1))
         self.ui_eliminar_canal.eliminar.clicked.connect(self.eliminar_canal)
 
-        self.dialog_eliminar_canal.exec_()
+        self.dialog_eliminar_canal.exec()
 
     def agregar_canal(self):
 
@@ -797,12 +799,13 @@ class Lab_Widget(Ui_Widget):
             nombre = self.ui_agregar_canal.nombre_variable.text()
             osciloscopio = self.ui_agregar_canal.osciloscopio.currentText().split(' - ')[0]
             canal = self.ui_agregar_canal.canal.currentText()
-            
+            datapoints = self.ui_agregar_canal.datapoints.value()
+
             self.print('Canal agregado:')
-            self.print('Nombre:' + nombre + '\t Osciloscopio: ' + osciloscopio + '\t Canal: ' + canal)
+            self.print('Nombre:' + nombre + '\t Osciloscopio: ' + osciloscopio + '\t Canal: ' + canal + '\t Datapoints: ' + str(datapoints))
             self.status.setText('Status: OK')
 
-            self.dispositivos_conectados[osciloscopio]['canales'][canal] = nombre
+            self.dispositivos_conectados[osciloscopio]['canales'][canal] = {'nombre':nombre, 'datapoints':datapoints}
 
             self.actualizar_canales()
 
@@ -819,9 +822,10 @@ class Lab_Widget(Ui_Widget):
         for nombre_dispositivo in self.dispositivos_conectados:
             for canal in self.dispositivos_conectados[nombre_dispositivo]['canales']:
                 item = QtWidgets.QTreeWidgetItem(i)
-                item.setText(0, self.dispositivos_conectados[nombre_dispositivo]['canales'][canal])
-                item.setText(1, canal)
+                item.setText(0, self.dispositivos_conectados[nombre_dispositivo]['canales'][canal]['nombre'])
+                item.setText(1, canal['nombre'])
                 item.setText(2, nombre_dispositivo + ' - ' + self.dispositivos_conectados[nombre_dispositivo]['modelo'])
+                item.setText(3, str(canal['datapoints']))
                 items.append(item)
         self.dispositivos_canales.clear()
         self.dispositivos_canales.addTopLevelItems(items)
@@ -831,7 +835,7 @@ class Lab_Widget(Ui_Widget):
         for nombre_dispositivo in self.dispositivos_conectados:
             for canal in self.dispositivos_conectados[nombre_dispositivo]['canales']:
                 item = QtWidgets.QTreeWidgetItem(i)
-                item.setText(0, self.dispositivos_conectados[nombre_dispositivo]['canales'][canal])
+                item.setText(0, self.dispositivos_conectados[nombre_dispositivo]['canales'][canal]['nombre'])
                 item.setText(1, canal)
                 item.setText(2, nombre_dispositivo + ' - ' + self.dispositivos_conectados[nombre_dispositivo]['modelo'])
                 items.append(item)
@@ -854,9 +858,21 @@ class Lab_Widget(Ui_Widget):
     def eliminar_canal(self):
         try:
             osciloscopio = self.dispositivos_canales.selectedItems()[0].text(2).split(' - ')[0]
-            canal = self.dispositivos_canales.selectedItems()[0].text(1)
+            nombre_canal = self.dispositivos_canales.selectedItems()[0].text(1)
+
+            canal = None
+            for chan in self.dispositivos_conectados[osciloscopio]['canales']:
+                if self.dispositivos_conectados[osciloscopio]['canales'][chan]['nombre'] == nombre_canal:
+                    canal = chan
+                    break
+            if canal == None:
+                self.print('Error eliminando canal: Canal no encontrado')
+                self.status.setText('Status: Error')
+                self.dialog_eliminar_canal.done(1)
+                return
 
             del self.dispositivos_conectados[osciloscopio]['canales'][canal]
+
             if canal in self.datos[osciloscopio]:
                 del self.datos[osciloscopio][canal]
 
@@ -931,7 +947,7 @@ class Lab_Widget(Ui_Widget):
                 
                 worker = DataWorker()
                 thread = QThread()
-                worker.set_device(nombre_dispositivo, [chan for chan in canales])
+                worker.set_device(nombre_dispositivo, [chan['nombre'] for chan in canales])
 
                 worker.moveToThread(thread)
                 thread.started.connect(worker.get_data)
@@ -983,7 +999,7 @@ class Lab_Widget(Ui_Widget):
             df = pd.DataFrame()
             for nombre_dispositivo in self.datos:
                 for chan in self.datos[nombre_dispositivo]:
-                    nombre = self.dispositivos_conectados[nombre_dispositivo]['canales'][chan]
+                    nombre = self.dispositivos_conectados[nombre_dispositivo]['canales'][chan]['nombre']
                     if len(self.datos[nombre_dispositivo][chan]['x']) < maxdatalength:
                         df.insert( i*2, 't_'+nombre, list(self.datos[nombre_dispositivo][chan]['x']) + [''] * (maxdatalength - len(self.datos[nombre_dispositivo][chan]['x'])))
                         df.insert( i*2 + 1, nombre, list(self.datos[nombre_dispositivo][chan]['y'])  + [''] * (maxdatalength - len(self.datos[nombre_dispositivo][chan]['y'])))
@@ -1048,7 +1064,7 @@ class Lab_Widget(Ui_Widget):
 
                 x = np.array(self.datos[dispositivo][chan]['x'])
                 y = np.array(self.datos[dispositivo][chan]['y'])
-                self.adquisicion_preview_graph.plot(x, y, name = self.dispositivos_conectados[dispositivo]['canales'][chan], pen = self.color_palette[i%len(self.color_palette)])
+                self.adquisicion_preview_graph.plot(x, y, name = self.dispositivos_conectados[dispositivo]['canales'][chan]['nombre'], pen = self.color_palette[i%len(self.color_palette)])
                 i+=1
 
         prefijo = self.adquisicion_prefijo.text()

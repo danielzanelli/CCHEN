@@ -93,12 +93,12 @@ class Ui_Widget(object):
         self.label_84.setObjectName(u"label_84")
         self.label_84.setGeometry(QRect(10, 80, 111, 20))
         self.label_84.setFont(font)
-        self.label_84.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_84.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.ingreso_label_archivos_locales = QLabel(self.tab_10)
         self.ingreso_label_archivos_locales.setObjectName(u"ingreso_label_archivos_locales")
         self.ingreso_label_archivos_locales.setGeometry(QRect(10, 100, 501, 20))
         self.ingreso_label_archivos_locales.setFont(font1)
-        self.ingreso_label_archivos_locales.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.ingreso_label_archivos_locales.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.ingreso_agregar_archivo = QPushButton(self.tab_10)
         self.ingreso_agregar_archivo.setObjectName(u"ingreso_agregar_archivo")
         self.ingreso_agregar_archivo.setGeometry(QRect(370, 20, 141, 31))
@@ -167,7 +167,7 @@ class Ui_Widget(object):
         self.label_91.setObjectName(u"label_91")
         self.label_91.setGeometry(QRect(10, 420, 191, 21))
         self.label_91.setFont(font)
-        self.label_91.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_91.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.ingreso_eliminar_parametro = QPushButton(self.tab_10)
         self.ingreso_eliminar_parametro.setObjectName(u"ingreso_eliminar_parametro")
         self.ingreso_eliminar_parametro.setGeometry(QRect(960, 410, 151, 31))
@@ -231,8 +231,8 @@ class Ui_Widget(object):
         self.frame_2 = QFrame(self.tab_10)
         self.frame_2.setObjectName(u"frame_2")
         self.frame_2.setGeometry(QRect(520, 30, 591, 261))
-        self.frame_2.setFrameShape(QFrame.StyledPanel)
-        self.frame_2.setFrameShadow(QFrame.Raised)
+        self.frame_2.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frame_2.setFrameShadow(QFrame.Shadow.Raised)
         self.ingreso_preview_graph = PlotWidget(self.frame_2)
         self.ingreso_preview_graph.setObjectName(u"ingreso_preview_graph")
         self.ingreso_preview_graph.setGeometry(QRect(0, 0, 591, 261))
@@ -242,7 +242,7 @@ class Ui_Widget(object):
         self.ingreso_preview_image.setObjectName(u"ingreso_preview_image")
         self.ingreso_preview_image.setGeometry(QRect(0, 0, 591, 261))
         self.ingreso_preview_image.setFont(font1)
-        self.ingreso_preview_image.setAlignment(Qt.AlignCenter)
+        self.ingreso_preview_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.ingreso_preview_text = QTextBrowser(self.frame_2)
         self.ingreso_preview_text.setObjectName(u"ingreso_preview_text")
         self.ingreso_preview_text.setGeometry(QRect(0, 0, 591, 261))
@@ -251,7 +251,7 @@ class Ui_Widget(object):
         self.ingreso_label_preview.setObjectName(u"ingreso_label_preview")
         self.ingreso_label_preview.setGeometry(QRect(580, 10, 531, 20))
         self.ingreso_label_preview.setFont(font1)
-        self.ingreso_label_preview.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.ingreso_label_preview.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.tabWidget.addTab(self.tab_10, "")
         self.tab = QWidget()
         self.tab.setObjectName(u"tab")
@@ -325,7 +325,7 @@ class Ui_Widget(object):
         self.adquisicion_label_archivos_locales.setObjectName(u"adquisicion_label_archivos_locales")
         self.adquisicion_label_archivos_locales.setGeometry(QRect(20, 80, 481, 20))
         self.adquisicion_label_archivos_locales.setFont(font1)
-        self.adquisicion_label_archivos_locales.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.adquisicion_label_archivos_locales.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.label_8 = QLabel(self.tab_2)
         self.label_8.setObjectName(u"label_8")
         self.label_8.setGeometry(QRect(510, 50, 131, 20))
@@ -370,7 +370,7 @@ class Ui_Widget(object):
         self.label_22.setObjectName(u"label_22")
         self.label_22.setGeometry(QRect(20, 60, 121, 20))
         self.label_22.setFont(font)
-        self.label_22.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_22.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.adquisicion_archivos_locales = QTreeWidget(self.tab_2)
         self.adquisicion_archivos_locales.setObjectName(u"adquisicion_archivos_locales")
         self.adquisicion_archivos_locales.setGeometry(QRect(20, 100, 471, 231))
@@ -399,12 +399,12 @@ class Ui_Widget(object):
         self.adquisicion_label_preview.setObjectName(u"adquisicion_label_preview")
         self.adquisicion_label_preview.setGeometry(QRect(590, 50, 511, 20))
         self.adquisicion_label_preview.setFont(font1)
-        self.adquisicion_label_preview.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
+        self.adquisicion_label_preview.setAlignment(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignTrailing|Qt.AlignmentFlag.AlignVCenter)
         self.frame = QFrame(self.tab_2)
         self.frame.setObjectName(u"frame")
         self.frame.setGeometry(QRect(510, 70, 591, 261))
-        self.frame.setFrameShape(QFrame.StyledPanel)
-        self.frame.setFrameShadow(QFrame.Raised)
+        self.frame.setFrameShape(QFrame.Shape.StyledPanel)
+        self.frame.setFrameShadow(QFrame.Shadow.Raised)
         self.adquisicion_preview_graph = PlotWidget(self.frame)
         self.adquisicion_preview_graph.setObjectName(u"adquisicion_preview_graph")
         self.adquisicion_preview_graph.setGeometry(QRect(0, 0, 591, 261))
@@ -414,7 +414,7 @@ class Ui_Widget(object):
         self.adquisicion_preview_image.setObjectName(u"adquisicion_preview_image")
         self.adquisicion_preview_image.setGeometry(QRect(0, 0, 591, 261))
         self.adquisicion_preview_image.setFont(font1)
-        self.adquisicion_preview_image.setAlignment(Qt.AlignCenter)
+        self.adquisicion_preview_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.adquisicion_preview_text = QTextBrowser(self.frame)
         self.adquisicion_preview_text.setObjectName(u"adquisicion_preview_text")
         self.adquisicion_preview_text.setGeometry(QRect(0, 0, 591, 261))
@@ -442,7 +442,7 @@ class Ui_Widget(object):
         self.bd_label_archivos_locales.setObjectName(u"bd_label_archivos_locales")
         self.bd_label_archivos_locales.setGeometry(QRect(10, 200, 561, 20))
         self.bd_label_archivos_locales.setFont(font1)
-        self.bd_label_archivos_locales.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.bd_label_archivos_locales.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.label_3 = QLabel(self.tab_3)
         self.label_3.setObjectName(u"label_3")
         self.label_3.setGeometry(QRect(900, 30, 101, 20))
@@ -492,7 +492,7 @@ class Ui_Widget(object):
         self.bd_archivos_locales.setEnabled(True)
         self.bd_archivos_locales.setGeometry(QRect(10, 220, 561, 191))
         self.bd_archivos_locales.setFont(font1)
-        self.bd_archivos_locales.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.bd_archivos_locales.setSizeAdjustPolicy(QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
         self.bd_archivos_locales.setIndentation(25)
         self.bd_archivos_locales.setRootIsDecorated(True)
         self.bd_archivos_locales.setSortingEnabled(True)
@@ -531,7 +531,7 @@ class Ui_Widget(object):
         self.label_21.setObjectName(u"label_21")
         self.label_21.setGeometry(QRect(10, 180, 141, 20))
         self.label_21.setFont(font)
-        self.label_21.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.label_21.setAlignment(Qt.AlignmentFlag.AlignLeading|Qt.AlignmentFlag.AlignLeft|Qt.AlignmentFlag.AlignVCenter)
         self.bd_descripcion = QTextBrowser(self.tab_3)
         self.bd_descripcion.setObjectName(u"bd_descripcion")
         self.bd_descripcion.setGeometry(QRect(10, 80, 561, 91))
@@ -558,7 +558,7 @@ class Ui_Widget(object):
         self.bd_password.setObjectName(u"bd_password")
         self.bd_password.setGeometry(QRect(710, 120, 151, 21))
         self.bd_password.setFont(font1)
-        self.bd_password.setEchoMode(QLineEdit.Password)
+        self.bd_password.setEchoMode(QLineEdit.EchoMode.Password)
         self.bd_ip = QLineEdit(self.tab_3)
         self.bd_ip.setObjectName(u"bd_ip")
         self.bd_ip.setGeometry(QRect(710, 160, 151, 21))
@@ -574,7 +574,7 @@ class Ui_Widget(object):
         self.label_92.setObjectName(u"label_92")
         self.label_92.setGeometry(QRect(380, 10, 331, 31))
         self.label_92.setFont(font)
-        self.label_92.setAlignment(Qt.AlignCenter)
+        self.label_92.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.tabWidget.addTab(self.tab_6, "")
         self.status = QLabel(Widget)
         self.status.setObjectName(u"status")
@@ -661,6 +661,9 @@ class Ui_Widget(object):
         self.ingreso_preview_text.setHtml(QCoreApplication.translate("Widget", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
         self.ingreso_label_preview.setText("")
@@ -675,6 +678,7 @@ class Ui_Widget(object):
         self.dispositivos_eliminar_canal.setText(QCoreApplication.translate("Widget", u"Eliminar Canal", None))
         self.dispositivos_agregar_canal.setText(QCoreApplication.translate("Widget", u"Agregar Canal", None))
         ___qtreewidgetitem2 = self.dispositivos_canales.headerItem()
+        ___qtreewidgetitem2.setText(3, QCoreApplication.translate("Widget", u"Datapoints", None));
         ___qtreewidgetitem2.setText(2, QCoreApplication.translate("Widget", u"Dispositivo", None));
         ___qtreewidgetitem2.setText(1, QCoreApplication.translate("Widget", u"Canal", None));
         ___qtreewidgetitem2.setText(0, QCoreApplication.translate("Widget", u"Nombre", None));
@@ -716,6 +720,9 @@ class Ui_Widget(object):
         self.adquisicion_preview_text.setHtml(QCoreApplication.translate("Widget", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
         self.label_23.setText(QCoreApplication.translate("Widget", u"Prefijo :", None))
@@ -759,6 +766,9 @@ class Ui_Widget(object):
         self.bd_descripcion.setHtml(QCoreApplication.translate("Widget", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
         self.bd_refrescar_servidor.setText(QCoreApplication.translate("Widget", u"Conectar / Refrescar Servidor", None))
@@ -775,6 +785,9 @@ class Ui_Widget(object):
         self.log.setHtml(QCoreApplication.translate("Widget", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
+"hr { height: 1px; border-width: 0; }\n"
+"li.unchecked::marker { content: \"\\2610\"; }\n"
+"li.checked::marker { content: \"\\2612\"; }\n"
 "</style></head><body style=\" font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>", None))
         self.label_92.setText(QCoreApplication.translate("Widget", u"Registro de Eventos", None))
