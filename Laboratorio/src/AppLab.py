@@ -555,10 +555,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_agregar_experimento = Ui_AgregarExperimento()
         self.ui_agregar_experimento.setupUi(self.dialog_agregar_experimento)
 
-        self.ui_agregar_experimento.cancelar.clicked.connect(self.dialog_agregar_experimento.done)
+        self.ui_agregar_experimento.cancelar.clicked.connect(lambda: self.dialog_agregar_experimento.done(1))
         self.ui_agregar_experimento.agregar.clicked.connect(self.agregar_experimento)
 
-        self.dialog_agregar_experimento.exec_()
+        self.dialog_agregar_experimento.exec()
 
     def popup_agregar_jornada(self):
         self.dialog_agregar_jornada = QtWidgets.QDialog()
@@ -570,20 +570,20 @@ class Lab_Widget(Ui_Widget):
         if not self.mongo_client == None:            
             self.ui_agregar_jornada.experimento.addItems([x['nombre'] for x in self.mongo_client.db.experimentos.find({})])
 
-        self.ui_agregar_jornada.cancelar.clicked.connect(self.dialog_agregar_jornada.done)
+        self.ui_agregar_jornada.cancelar.clicked.connect(lambda: self.dialog_agregar_jornada.done(1))
         self.ui_agregar_jornada.agregar.clicked.connect(self.agregar_jornada)
 
-        self.dialog_agregar_jornada.exec_()
+        self.dialog_agregar_jornada.exec()
 
     def popup_conectar_dispositivo_ip(self):
         self.dialog_conectar_dispositivo_ip = QtWidgets.QDialog()
         self.ui_conectar_dispositivo_ip = Ui_DispositivoIp()
         self.ui_conectar_dispositivo_ip.setupUi(self.dialog_conectar_dispositivo_ip)
 
-        self.ui_conectar_dispositivo_ip.cancelar.clicked.connect(self.dialog_conectar_dispositivo_ip.done)
+        self.ui_conectar_dispositivo_ip.cancelar.clicked.connect(lambda: self.dialog_conectar_dispositivo_ip.done(1))
         self.ui_conectar_dispositivo_ip.conectar.clicked.connect(self.conectar_dispositivo_ip)
 
-        self.dialog_conectar_dispositivo_ip.exec_()
+        self.dialog_conectar_dispositivo_ip.exec()
 
     def actualizar_canales_popup(self):
         
@@ -607,14 +607,14 @@ class Lab_Widget(Ui_Widget):
         self.ui_agregar_canal.setupUi(self.dialog_agregar_canal)
 
 
-        self.ui_agregar_canal.cancelar.clicked.connect(self.dialog_agregar_canal.done)
+        self.ui_agregar_canal.cancelar.clicked.connect(lambda: self.dialog_agregar_canal.done(1))
         self.ui_agregar_canal.agregar.clicked.connect(self.agregar_canal)
 
         self.ui_agregar_canal.osciloscopio.addItems([x + ' - ' + self.dispositivos_conectados[x]['modelo'] for x in self.dispositivos_conectados])
         self.ui_agregar_canal.osciloscopio.currentIndexChanged.connect(self.actualizar_canales_popup)
         self.actualizar_canales_popup()
 
-        self.dialog_agregar_canal.exec_()
+        self.dialog_agregar_canal.exec()
 
     def popup_asignar_datapoint(self):        
         
@@ -626,7 +626,7 @@ class Lab_Widget(Ui_Widget):
         
         self.ui_asignar_datapoint.datapoint.setText(self.ingreso_archivos_locales.selectedItems()[0].text(0))
 
-        self.ui_asignar_datapoint.cancelar.clicked.connect(self.dialog_asignar_datapoint.done)
+        self.ui_asignar_datapoint.cancelar.clicked.connect(lambda: self.dialog_asignar_datapoint.done(1))
         self.ui_asignar_datapoint.asignar.clicked.connect(self.asignar_datapoint)
 
         
@@ -657,7 +657,7 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-        self.dialog_asignar_datapoint.exec_()
+        self.dialog_asignar_datapoint.exec()
 
     def popup_eliminar_archivo(self):        
         
@@ -667,7 +667,7 @@ class Lab_Widget(Ui_Widget):
         
         self.ui_eliminar_archivo.preview_graph.setBackground('white')
 
-        self.ui_eliminar_archivo.cancelar.clicked.connect(self.dialog_eliminar_archivo.done)
+        self.ui_eliminar_archivo.cancelar.clicked.connect(lambda: self.dialog_eliminar_archivo.done(1))
         self.ui_eliminar_archivo.eliminar.clicked.connect(self.eliminar_archivo)
 
 
@@ -699,7 +699,7 @@ class Lab_Widget(Ui_Widget):
             self.print(str(e) + '\n')
             self.status.setText('Status: Error')
 
-        self.dialog_eliminar_archivo.exec_()
+        self.dialog_eliminar_archivo.exec()
 
     def popup_eliminar_parametro(self):        
         
@@ -708,7 +708,7 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_parametro.setupUi(self.dialog_eliminar_parametro)
         
 
-        self.ui_eliminar_parametro.cancelar.clicked.connect(self.dialog_eliminar_parametro.done)
+        self.ui_eliminar_parametro.cancelar.clicked.connect(lambda: self.dialog_eliminar_parametro.done(1))
         self.ui_eliminar_parametro.eliminar.clicked.connect(self.eliminar_parametro)
 
         datapoint = self.ingreso_parametros.selectedItems()[0].text(0)
@@ -721,7 +721,7 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_parametro.unidad.setText(unidad)
         self.ui_eliminar_parametro.datapoint.setText(datapoint)
 
-        self.dialog_eliminar_parametro.exec_()
+        self.dialog_eliminar_parametro.exec()
 
     def popup_crear_parametro(self):        
         
@@ -729,10 +729,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_crear_parametro = Ui_CrearParametro()
         self.ui_crear_parametro.setupUi(self.dialog_crear_parametro)        
 
-        self.ui_crear_parametro.cancelar.clicked.connect(self.dialog_crear_parametro.done)
+        self.ui_crear_parametro.cancelar.clicked.connect(lambda: self.dialog_crear_parametro.done(1))
         self.ui_crear_parametro.crear.clicked.connect(self.crear_parametro)
 
-        self.dialog_crear_parametro.exec_()
+        self.dialog_crear_parametro.exec()
 
     def popup_subir(self):        
         
@@ -740,10 +740,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_subir = Ui_Subir()
         self.ui_subir.setupUi(self.dialog_subir)        
 
-        self.ui_subir.cancelar.clicked.connect(self.dialog_subir.done)
+        self.ui_subir.cancelar.clicked.connect(lambda: self.dialog_subir.done(1))
         self.ui_subir.subir.clicked.connect(self.subir)
 
-        self.dialog_subir.exec_()
+        self.dialog_subir.exec()
 
     def popup_guardar_descripcion(self):        
         
@@ -751,10 +751,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_guardar_descripcion = Ui_GuardarDescripcion()
         self.ui_guardar_descripcion.setupUi(self.dialog_guardar_descripcion)        
 
-        self.ui_guardar_descripcion.cancelar.clicked.connect(self.dialog_guardar_descripcion.done)
+        self.ui_guardar_descripcion.cancelar.clicked.connect(lambda: self.dialog_guardar_descripcion.done(1))
         self.ui_guardar_descripcion.si.clicked.connect(self.guardar_descripcion)
 
-        self.dialog_guardar_descripcion.exec_()
+        self.dialog_guardar_descripcion.exec()
         
     def popup_desconectar_dispositivo(self):
         try:
@@ -765,10 +765,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_desconectar_dispositivo = Ui_DesconectarDispositivo()
         self.ui_desconectar_dispositivo.setupUi(self.dialog_desconectar_dispositivo)
         self.ui_desconectar_dispositivo.dispositivo.setText(nombre + ' - ' + self.dispositivos_conectados[nombre]['modelo'])
-        self.ui_desconectar_dispositivo.cancelar.clicked.connect(self.dialog_desconectar_dispositivo.done)
+        self.ui_desconectar_dispositivo.cancelar.clicked.connect(lambda: self.dialog_desconectar_dispositivo.done(1))
         self.ui_desconectar_dispositivo.desconectar.clicked.connect(self.desconectar_dispositivo)
 
-        self.dialog_desconectar_dispositivo.exec_()
+        self.dialog_desconectar_dispositivo.exec()
 
     def popup_eliminar_canal(self):
         try:
@@ -788,10 +788,10 @@ class Lab_Widget(Ui_Widget):
         self.ui_eliminar_canal.osciloscopio.setText(osciloscopio)
         self.ui_eliminar_canal.datapoints.setText(datapoints)
 
-        self.ui_eliminar_canal.cancelar.clicked.connect(self.dialog_eliminar_canal.done)
+        self.ui_eliminar_canal.cancelar.clicked.connect(lambda: self.dialog_eliminar_canal.done(1))
         self.ui_eliminar_canal.eliminar.clicked.connect(self.eliminar_canal)
 
-        self.dialog_eliminar_canal.exec_()
+        self.dialog_eliminar_canal.exec()
 
     def agregar_canal(self):
 
