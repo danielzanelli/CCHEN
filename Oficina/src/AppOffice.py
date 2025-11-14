@@ -84,7 +84,7 @@ class Office_Wigdet(Ui_Widget):
         self.ui_agregar_filtro.parametro.currentIndexChanged.connect(self.refrescar_popup_agregar_filtro)
         self.refrescar_popup_agregar_filtro()
 
-        self.dialog_agregar_filtro.exec_()
+        self.dialog_agregar_filtro.exec()
         
     def refrescar_popup_agregar_filtro(self):
         
@@ -175,7 +175,7 @@ class Office_Wigdet(Ui_Widget):
         self.ui_eliminar_filtro.condicion.setText(condicion)
         self.ui_eliminar_filtro.valor.setText(valor)
 
-        self.dialog_eliminar_filtro.exec_()
+        self.dialog_eliminar_filtro.exec()
         
     def eliminar_filtro(self):
         parametro = self.ui_eliminar_filtro.parametro.text()
