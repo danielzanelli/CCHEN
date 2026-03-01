@@ -25,7 +25,7 @@ import json
 import pyvisa
 import numpy as np
 import pandas as pd
-from PySide6.QtGui import QPixmap ,QTextCursor, QIcon
+from PySide6.QtGui import QPixmap ,QTextCursor, QIcon, QShortcut, QKeySequence, QColor
 from PySide6.QtCore import Qt, QObject, Signal, QThread
 from PySide6 import QtWidgets
 from tkinter import Tk
@@ -246,6 +246,8 @@ class Lab_Widget(QtWidgets.QWidget):
         self.image_thread = QThread()
         self.image_worker = ImageWorker()
 
+        self.darkmode = False
+
 
         self.cargar_parametros()
         self.cargar_indice()
@@ -265,8 +267,27 @@ class Lab_Widget(QtWidgets.QWidget):
 
         self.ui.adquisicion_archivos_locales.itemDoubleClicked.connect(self.adquisicion_visualizar_archivo)
         self.ui.ingreso_archivos_locales.itemDoubleClicked.connect(self.ingreso_visualizar_archivo)
-        self.ui.adquisicion_preview_graph.setBackground('white')
-        self.ui.ingreso_preview_graph.setBackground('white')
+        
+        # Set background color to transparent for all preview widgets
+        self.ui.adquisicion_preview_graph.setBackground((0,0,0,0))
+        self.ui.adquisicion_preview_image.setStyleSheet("background-color: transparent;")
+        self.ui.adquisicion_preview_text.setStyleSheet("background-color: transparent;")
+        self.ui.ingreso_preview_graph.setBackground((0,0,0,0))
+        self.ui.ingreso_preview_image.setStyleSheet("background-color: transparent;")
+        self.ui.ingreso_preview_text.setStyleSheet("background-color: transparent;")
+        self.ui.frame.setStyleSheet("background-color: transparent;")
+        self.ui.frame_2.setStyleSheet("background-color: transparent;")
+
+
+        # Disable the text, image and graph widgets until a file is selected
+        self.ui.adquisicion_preview_graph.setVisible(False)
+        self.ui.adquisicion_preview_image.setVisible(False)
+        self.ui.adquisicion_preview_text.setVisible(False)
+        self.ui.ingreso_preview_graph.setVisible(False)
+        self.ui.ingreso_preview_image.setVisible(False)
+        self.ui.ingreso_preview_text.setVisible(False)
+
+
 
         self.ui.dispositivos_conectar.clicked.connect(self.conectar)
         self.ui.dispositivos_buscar.clicked.connect(self.buscar_dispositivos)
@@ -299,6 +320,8 @@ class Lab_Widget(QtWidgets.QWidget):
         self.ui.ingreso_agregar_parametro_4.clicked.connect(self.agregar_valor_parametro_4)
 
         self.ui.ingreso_crear_parametro.clicked.connect(self.popup_crear_parametro)
+
+        self.ui.darkmode_button.clicked.connect(self.toggle_darkmode)
 
         self.ui.bd_refrescar_servidor.clicked.connect(self.refrescar_servidor)
 
@@ -1160,7 +1183,7 @@ class Lab_Widget(QtWidgets.QWidget):
 
     def auto(self):
         
-        if self.adquisicion_auto.text() == 'Auto Adquirir':
+        if self.ui.adquisicion_auto.text() == 'Auto Adquirir':
             self.print('Adquisicion automatica iniciada')
             self.ui.adquisicion_auto.setText('Stop')
             self.ui.adquisicion_auto_guardar.setEnabled(False)
@@ -1907,6 +1930,76 @@ class Lab_Widget(QtWidgets.QWidget):
         self.ui.log.moveCursor(QTextCursor.End)
         self.ui.log.ensureCursorVisible()
 
+    def toggle_darkmode(self):
+        self.darkmode = not self.darkmode
+        if self.darkmode:
+            dark_stylesheet = """
+                QWidget {
+                    background-color: #2b2b2b;
+                    color: #ffffff;
+                }
+                QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+                    background-color: #3c3c3c;
+                    color: #ffffff;
+                    border: 1px solid #555555;
+                }
+                QPushButton {
+                    background-color: #404040;
+                    color: #ffffff;
+                    border: 1px solid #555555;
+                }
+                QPushButton:hover {
+                    background-color: #505050;
+                }
+                QTreeWidget, QListWidget, QTableWidget {
+                    background-color: #3c3c3c;
+                    color: #ffffff;
+                    alternate-background-color: #454545;
+                }
+                QHeaderView::section {
+                    background-color: #404040;
+                    color: #ffffff;
+                    border: 1px solid #555555;
+                }
+                QTabWidget::pane {
+                    border: 1px solid #555555;
+                }
+                QTabBar::tab {
+                    background-color: #404040;
+                    color: #ffffff;
+                }
+                QTabBar::tab:selected {
+                    background-color: #505050;
+                }
+                QLabel {
+                    color: #ffffff;
+                }
+                QGroupBox {
+                    border: 1px solid #555555;
+                    color: #ffffff;
+                }
+                QDialog {
+                    background-color: #2b2b2b;
+                    color: #ffffff;
+                }
+                QCheckBox {
+                    color: #ffffff;
+                }
+                QScrollBar:vertical, QScrollBar:horizontal {
+                    background-color: #3c3c3c;
+                }
+                QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
+                    background-color: #555555;
+                }
+            """
+            QtWidgets.QApplication.instance().setStyleSheet(dark_stylesheet)
+            self.ui.darkmode_button.setText('Lightmode')
+            self.print('Modo oscuro activado')
+        else:
+            QtWidgets.QApplication.instance().setStyleSheet('')
+            self.ui.darkmode_button.setText('Darkmode')
+            self.print('Modo claro activado')
+
     def subir(self):
 
         
@@ -1999,6 +2092,20 @@ if __name__ == "__main__":
     app.setWindowIcon(QIcon('icon.ico'))
     window = Lab_Widget()
     window.setWindowTitle('Applicacion de Laboratorio')
+
+    def toggle_fullscreen():
+        if window.isFullScreen():
+            window.showNormal()
+        else:
+            window.showFullScreen()
+    shortcut = QShortcut(Qt.Key.Key_F11, window)
+    shortcut.activated.connect(toggle_fullscreen)
+
+    # Start with dark mode enabled by default
+    window.toggle_darkmode()
+    
     window.show()
     window.seleccionar_carpeta()
+
+
     sys.exit(app.exec())
