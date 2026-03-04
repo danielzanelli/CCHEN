@@ -276,6 +276,7 @@ class Lab_Widget(QtWidgets.QWidget):
         try:
             self.manager = pyvisa.ResourceManager('@py')
         except Exception:
+            self.print('Error inicializando ResourceManager de PyVISA. Asegurese de tener instalado el backend pyvisa-py y que no haya conflictos con otros backends. Algunas funciones de adquisicion pueden no estar disponibles.')
             self.manager = None
         self.dispositivos_disponibles = []
         self.dispositivos_conectados = {}
