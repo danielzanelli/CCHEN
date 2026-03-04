@@ -1,4 +1,4 @@
-from ventanaPrincipal import Ui_Widget
+from Laboratorio.src.ventanaPrincipal_BAK import Ui_Widget
 from agregarCanal import Ui_AgregarCanal
 from agregarExperimento import Ui_AgregarExperimento
 from agregarJornada import Ui_AgregarJornada
@@ -949,11 +949,11 @@ class Lab_Widget(QtWidgets.QWidget):
     def eliminar_canal(self):
         try:
             osciloscopio = self.ui.dispositivos_canales.selectedItems()[0].text(2).split(' - ')[0]
-            nombre_canal = self.ui.dispositivos_canales.selectedItems()[0].text(1)
+            id_canal = self.ui.dispositivos_canales.selectedItems()[0].text(1)
 
             canal = None
             for chan_id in self.dispositivos_conectados[osciloscopio]['canales']:
-                if self.dispositivos_conectados[osciloscopio]['canales'][chan_id]['nombre'] == nombre_canal:
+                if chan_id == id_canal:
                     canal = self.dispositivos_conectados[osciloscopio]['canales'][chan_id]
                     break
             if canal is None:
@@ -2011,9 +2011,7 @@ class Lab_Widget(QtWidgets.QWidget):
             self.ui.darkmode_button.setText('Darkmode')
             self.print('Modo claro activado')
 
-    def subir(self):
-
-        
+    def subir(self):        
         if self.mongo_client is None:
             self.print('Error subiendo datos al servidor: Servidor desconectado')
             self.ui.status.setText('Status: Error')
