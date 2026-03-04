@@ -1,4 +1,4 @@
-from Laboratorio.src.ventanaPrincipal_BAK import Ui_Widget
+from ventanaPrincipal import Ui_Widget
 from agregarCanal import Ui_AgregarCanal
 from agregarExperimento import Ui_AgregarExperimento
 from agregarJornada import Ui_AgregarJornada
