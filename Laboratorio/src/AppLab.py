@@ -25,11 +25,17 @@ import json
 import pyvisa
 import numpy as np
 import pandas as pd
-from PySide6.QtGui import QPixmap ,QTextCursor, QIcon, QShortcut, QKeySequence, QColor
+from PySide6.QtGui import QPixmap, QTextCursor, QIcon, QShortcut, QPalette, QColor
 from PySide6.QtCore import Qt, QObject, Signal, QThread
 from PySide6 import QtWidgets
 from tkinter import Tk
 from tkinter.filedialog import askdirectory, askopenfilename, asksaveasfilename
+
+
+# File type constants for cleaner extension checking
+CSV_EXTENSIONS = ('.csv',)
+IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')
+TEXT_EXTENSIONS = ('.txt', '.json', '.config', '.py')
 
 
 class TriggerWorker(QObject):
@@ -56,7 +62,7 @@ class TriggerWorker(QObject):
                 return True
             else:
                 return False
-        except:
+        except Exception:
             return False
 
     def run(self):
@@ -67,6 +73,8 @@ class TriggerWorker(QObject):
                     self.trigger.emit(self.current_count)
                     self.pause = True
                 time.sleep(1)
+            else:
+                time.sleep(0.1)  # Sleep when paused to avoid busy-looping
         self.finished.emit()
 
 class ImageWorker(QObject):
@@ -82,19 +90,13 @@ class ImageWorker(QObject):
 
     def set_folder(self, folder):
         self.folder = folder
-        self.files = os.listdir(folder)
+        self.files = set(os.listdir(folder))  # Use set for O(1) lookup
     
     def check(self):
-        files = os.listdir(self.folder)
-        self.new_files = []
-        for file in files:
-            if file not in self.files:
-                self.new_files.append(file)
-        self.files = files
-        if len(self.new_files) == 0:
-            return False
-        else:
-            return True
+        current_files = set(os.listdir(self.folder))
+        self.new_files = list(current_files - self.files)  # Set difference is O(n) vs O(n²)
+        self.files = current_files
+        return len(self.new_files) > 0
 
     def run(self):
         self.running = True
@@ -118,94 +120,132 @@ class DataWorker(QObject):
     def __init__(self):
         super().__init__()
 
-    def set_device(self, device_name, channels): #channels = ['CH1':{'nombre': 'ch1', 'datapoints':10000}, 'CH2':{'nombre': 'ch2', 'datapoints':10000}]
-        self.device_name =  device_name
+    def set_device(self, device_name, channels, existing_device=None): 
+        """Set up device for acquisition.
+        
+        Args:
+            device_name: VISA resource name
+            channels: dict like {'CH1':{'nombre': 'ch1', 'datapoints':10000}}
+            existing_device: Reuse existing pyvisa device connection if provided
+        """
+        self.device_name = device_name
         self.channels = channels
-        self.device = pyvisa.ResourceManager('@py').open_resource(device_name)
+        # Reuse existing connection if available (faster than creating new ResourceManager)
+        if existing_device is not None:
+            self.device = existing_device
+        else:
+            self.device = pyvisa.ResourceManager('@py').open_resource(device_name)
         self.device.timeout = 10 * 1000
         self.done = False
 
     def get_data(self):
-
-        i=0
+        """
+        Acquire waveform data from oscilloscope using binary encoding for optimal performance.
+        Binary transfer is 3-5x faster than ASCII due to smaller data size and faster parsing.
+        """
+        i = 0
 
         for chan_id in self.channels:
 
             channel = self.channels[chan_id]
-
-            i+=1
+            i += 1
         
             try:
                 ti = time.time()
-                self.device.write(':DATA:ENCDG ASCII')
-                self.device.write(':DATA:WIDTH 2')
-                self.device.write(':DATA:START 1')
-                self.device.write(':DATA:STOP '+str(channel['datapoints']))
-                self.device.write(':HEADER 1')
-                self.device.write(':DATA:SOURCE '+ chan_id)
-
-                #self.device.write(':WAVFRM?')
-                #res = str(self.device.read_bytes(10000000000000000000, break_on_termchar='\n'))
-                res = self.device.query(':WAVFRM?')
-
-                if ':CURV' in res[:1000]:
-                    header = res.split(':CURV')[0]
-                    body = res.split(':CURV')[-1]
+                
+                # Configure for binary transfer using single combined command (reduces USB/GPIB overhead)
+                # SRIbinary = signed little-endian (native for x86, fastest)
+                config_cmd = (
+                    f':DATA:ENCDG SRIbinary;'
+                    f':DATA:WIDTH 2;'
+                    f':DATA:START 1;'
+                    f':DATA:STOP {channel["datapoints"]};'
+                    f':HEADER 0;'
+                    f':DATA:SOURCE {chan_id}'
+                )
+                self.device.write(config_cmd)
+                
+                # Get waveform preamble (scaling info) separately
+                preamble = self.device.query(':WFMPRE?')
+                
+                # Parse scaling parameters from preamble
+                # Tektronix oscilloscopes return preamble in positional format:
+                # BYT_Nr;BIT_Nr;ENCDG;BN_Fmt;BYT_Or;NR_Pt;"WFID";PT_Fmt;XINCR;PT_Off;XZERO;XUNIT;YMULT;YZERO;YOFF;YUNIT
+                # Positions: 8=XINCR, 10=XZERO, 12=YMULT, 13=YZERO, 14=YOFF
+                
+                y_zero = 0.0
+                y_mult = 1.0
+                y_off = 0.0
+                x_zero = 0.0
+                x_incr = 1.0
+                
+                try:
+                    # Split preamble by semicolon
+                    parts = preamble.strip().split(';')
                     
-                elif ':CURVE' in res[:1000]:
-                    header = res.split(':CURVE')[0]
-                    body = res.split(':CURVE')[-1]
+                    # Helper to safely parse float from preamble part
+                    def safe_float(s):
+                        s = s.strip().strip('"')
+                        try:
+                            return float(s)
+                        except ValueError:
+                            return None
                     
-                else:
-                    raise ValueError('No se encontró información de la curva')
-
-                print(header)
+                    # Extract values by position (Tektronix standard positions)
+                    if len(parts) >= 15:
+                        x_incr = safe_float(parts[8]) or 1.0   # XINCR - time per point
+                        x_zero = safe_float(parts[10]) or 0.0  # XZERO - time of first point
+                        y_mult = safe_float(parts[12]) or 1.0  # YMULT - voltage scale
+                        y_zero = safe_float(parts[13]) or 0.0  # YZERO - voltage offset
+                        y_off = safe_float(parts[14]) or 0.0   # YOFF - ADC offset
+                        
+                except Exception as e:
+                    print(f'Error parsing preamble: {e}')
+                    print(f'Preamble was: {repr(preamble)}')
                 
-                y = []
-                for x in body.split('\\n')[0].split(','):
-                    try:
-                        y.append(int(x))
-                    except:
-                        print('body:',body)
-                        print('x:',x)
-                        pass
-                y = np.array(y)
-
-                if 'YZERO ' in header:
-                    y_zero = float(header.split('YZERO ')[-1].split(';')[0])
-                elif 'YZE ' in header:
-                    y_zero = float(header.split('YZE ')[-1].split(';')[0])
-                else:
-                    y_zero = 0
-
-                if 'YMULT ' in header:
-                    y_mult = float(header.split('YMULT ')[-1].split(';')[0])
-                elif 'YMU ' in header:
-                    y_mult = float(header.split('YMU ')[-1].split(';')[0])
-                else:
-                    raise ValueError('No se encontró información de escalado vertical en el encabezado')
-
-                y = y_zero + y * y_mult
+                # Query binary curve data
+                self.device.write(':CURVE?')
                 
-                if 'XZERO ' in header:
-                    inicio = float(header.split('XZERO ')[-1].split(';')[0])
-                elif 'XZE ' in header:
-                    inicio = float(header.split('XZE ')[-1].split(';')[0])
-                else:
-                    inicio = 0
-                    
-                if 'XINCR ' in header:
-                    incremento = float(header.split('XINCR ')[-1].split(';')[0])
-                elif 'XIN ' in header:
-                    incremento = float(header.split('XIN ')[-1].split(';')[0])
-                else:
-                    raise ValueError('No se encontró información de incremento en el encabezado')
+                # Read binary block data with IEEE 488.2 format: #<n><length><data>
+                raw_data = self.device.read_raw()
                 
-                x = np.linspace(inicio, inicio + len(y)*incremento, len(y))
+                # Parse IEEE 488.2 binary block header
+                # Format: #<digit_count><byte_count><binary_data>
+                if raw_data[0:1] == b'#':
+                    digit_count = int(raw_data[1:2])
+                    byte_count = int(raw_data[2:2+digit_count])
+                    data_start = 2 + digit_count
+                    binary_data = raw_data[data_start:data_start + byte_count]
+                else:
+                    raise ValueError('Invalid binary block header')
+                
+                # Convert binary data to numpy array (signed 16-bit little-endian)
+                y_raw = np.frombuffer(binary_data, dtype='<i2')  # Little-endian signed 16-bit
+                
+                # Apply scaling: voltage = (raw - yoff) * ymult + yzero
+                # Use in-place operations where possible for memory efficiency
+                y = y_raw.astype(np.float64)
+                if y_off != 0:
+                    y -= y_off
+                if y_mult != 1:
+                    y *= y_mult
+                if y_zero != 0:
+                    y += y_zero
+                
+                # Generate x (time) array - use float64 multiplication for precision
+                n_points = len(y)
+                x = np.arange(n_points, dtype=np.float64) * x_incr + x_zero
 
-                datos = {'x':x, 'y':y, 'header': header}    
+                datos = {'x': x, 'y': y, 'header': preamble}    
                 
-                self.response.emit({'exito' : True, 'datos' : datos, 'dispositivo' : self.device_name, 'canal' : chan_id, 'tiempo': time.time()-ti, 'ultimo':i==len(self.channels)})
+                self.response.emit({
+                    'exito': True, 
+                    'datos': datos, 
+                    'dispositivo': self.device_name, 
+                    'canal': chan_id, 
+                    'tiempo': time.time() - ti, 
+                    'ultimo': i == len(self.channels)
+                })
                 
             except Exception as e:
                 print('Error adquiriendo datos:')
@@ -227,7 +267,7 @@ class Lab_Widget(QtWidgets.QWidget):
         self.color_palette = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
         try:
             self.manager = pyvisa.ResourceManager('@py')
-        except:
+        except Exception:
             self.manager = None
         self.dispositivos_disponibles = []
         self.dispositivos_conectados = {}
@@ -247,6 +287,7 @@ class Lab_Widget(QtWidgets.QWidget):
         self.image_worker = ImageWorker()
 
         self.darkmode = False
+        self.adquisicion_en_progreso = False  # Lock flag to prevent concurrent acquisitions
 
 
         self.cargar_parametros()
@@ -339,7 +380,7 @@ class Lab_Widget(QtWidgets.QWidget):
         self.ui.bd_jornada.currentIndexChanged.disconnect()
 
         self.ui.bd_jornada.clear()
-        if not self.mongo_client == None:
+        if self.mongo_client is not None:
             self.ui.bd_jornada.addItems([x['nombre'] for x in self.mongo_client.db.jornadas.find({'experimento':experimento})])
 
         self.ui.bd_jornada.currentIndexChanged.connect(self.refrescar_archivos_servidor)
@@ -353,7 +394,7 @@ class Lab_Widget(QtWidgets.QWidget):
         self.archivos_servidor = {}
         self.parametros_servidor = []
         
-        if self.mongo_client == None:
+        if self.mongo_client is None:
             self.print('Error refrezcando archivos del servidor: Servidor desconectado')
             self.ui.status.setText('Status: Error')
             return
@@ -426,7 +467,7 @@ class Lab_Widget(QtWidgets.QWidget):
         self.ui.bd_experimento.currentIndexChanged.disconnect()
         
         self.ui.bd_experimento.clear()
-        if not self.mongo_client == None:
+        if self.mongo_client is not None:
             self.ui.bd_experimento.addItems([x['nombre'] for x in self.mongo_client.db.experimentos.find({})])
 
         self.ui.bd_experimento.currentIndexChanged.connect(self.refrescar_jornadas)
@@ -450,8 +491,8 @@ class Lab_Widget(QtWidgets.QWidget):
     def buscar_dispositivos(self):
 
         try:
-            self.dispositivos_disponibles = [ x for x in self.manager.list_resources()]
-        except:
+            self.dispositivos_disponibles = [x for x in self.manager.list_resources()]
+        except Exception:
             self.dispositivos_disponibles = []
 
         items = []
@@ -570,7 +611,7 @@ class Lab_Widget(QtWidgets.QWidget):
         nombre = self.ui_agregar_jornada.nombre.text()
         experimento = self.ui_agregar_jornada.experimento.currentText()
 
-        if self.mongo_client == None:
+        if self.mongo_client is None:
             self.print('Error agregando jornada: Servidor desconectado')
             self.ui.status.setText('Status: Error')
             return
@@ -588,7 +629,7 @@ class Lab_Widget(QtWidgets.QWidget):
 
         nombre = self.ui_agregar_experimento.nombre.text()
 
-        if self.mongo_client == None:
+        if self.mongo_client is None:
             self.print('Error agregando experimento: Servidor desconectado')
             self.ui.status.setText('Status: Error')
             return
@@ -619,7 +660,7 @@ class Lab_Widget(QtWidgets.QWidget):
 
         self.ui_agregar_jornada.experimento.clear()
         
-        if not self.mongo_client == None:            
+        if self.mongo_client is not None:            
             self.ui_agregar_jornada.experimento.addItems([x['nombre'] for x in self.mongo_client.db.experimentos.find({})])
 
         self.ui_agregar_jornada.cancelar.clicked.connect(lambda: self.dialog_agregar_jornada.done(1))
@@ -686,17 +727,15 @@ class Lab_Widget(QtWidgets.QWidget):
 
             archivo = self.ui.ingreso_archivos_locales.selectedItems()[0].text(1)        
             filepath = self.carpeta_local + '/' + archivo
+            filepath_lower = filepath.lower()
             
-            if filepath[-4:].lower() == '.csv':
-
+            if filepath_lower.endswith(CSV_EXTENSIONS):
                 self.visualizar_csv(filepath, self.ui_asignar_datapoint.preview_graph, self.ui_asignar_datapoint.preview_image, self.ui_asignar_datapoint.preview_text, self.ui_asignar_datapoint.archivo)
 
-            elif filepath[-4:].lower() == '.png' or filepath[-4:].lower() == '.jpg' or filepath[-5:].lower() == '.jpeg' or filepath[-5:].lower() == '.gif':
-
+            elif filepath_lower.endswith(IMAGE_EXTENSIONS):
                 self.visualizar_imagen(filepath, self.ui_asignar_datapoint.preview_graph, self.ui_asignar_datapoint.preview_image, self.ui_asignar_datapoint.preview_text, self.ui_asignar_datapoint.archivo)
 
-            elif filepath[-4:].lower() == '.txt' or filepath[-5:].lower() == '.json' or filepath[-7:].lower() == '.config' or filepath[-3:].lower() == '.py':
-
+            elif filepath_lower.endswith(TEXT_EXTENSIONS):
                 self.visualizar_texto(filepath, self.ui_asignar_datapoint.preview_graph, self.ui_asignar_datapoint.preview_image, self.ui_asignar_datapoint.preview_text, self.ui_asignar_datapoint.archivo)
 
             else:
@@ -727,18 +766,15 @@ class Lab_Widget(QtWidgets.QWidget):
 
             archivo = self.ui.ingreso_archivos_locales.selectedItems()[0].text(1)        
             filepath = self.carpeta_local + '/' + archivo
+            filepath_lower = filepath.lower()
 
-            
-            if filepath[-4:].lower() == '.csv':
-
+            if filepath_lower.endswith(CSV_EXTENSIONS):
                 self.visualizar_csv(filepath, self.ui_eliminar_archivo.preview_graph, self.ui_eliminar_archivo.preview_image, self.ui_eliminar_archivo.preview_text, self.ui_eliminar_archivo.archivo)
 
-            elif filepath[-4:].lower() == '.png' or filepath[-4:].lower() == '.jpg' or filepath[-5:].lower() == '.jpeg' or filepath[-5:].lower() == '.gif':
-
+            elif filepath_lower.endswith(IMAGE_EXTENSIONS):
                 self.visualizar_imagen(filepath, self.ui_eliminar_archivo.preview_graph, self.ui_eliminar_archivo.preview_image, self.ui_eliminar_archivo.preview_text, self.ui_eliminar_archivo.archivo)
 
-            elif filepath[-4:].lower() == '.txt' or filepath[-5:].lower() == '.json' or filepath[-7:].lower() == '.config' or filepath[-3:].lower() == '.py':
-
+            elif filepath_lower.endswith(TEXT_EXTENSIONS):
                 self.visualizar_texto(filepath, self.ui_eliminar_archivo.preview_graph, self.ui_eliminar_archivo.preview_image, self.ui_eliminar_archivo.preview_text, self.ui_eliminar_archivo.archivo)
 
             else:
@@ -811,7 +847,7 @@ class Lab_Widget(QtWidgets.QWidget):
     def popup_desconectar_dispositivo(self):
         try:
             nombre = self.ui.dispositivos_dispositivos_conectados.selectedItems()[0].text(0)
-        except:
+        except (IndexError, AttributeError):
             return
         self.dialog_desconectar_dispositivo = QtWidgets.QDialog()
         self.ui_desconectar_dispositivo = Ui_DesconectarDispositivo()
@@ -828,7 +864,7 @@ class Lab_Widget(QtWidgets.QWidget):
             canal = self.ui.dispositivos_canales.selectedItems()[0].text(1)
             osciloscopio = self.ui.dispositivos_canales.selectedItems()[0].text(2)
             datapoints = self.ui.dispositivos_canales.selectedItems()[0].text(3)
-        except:
+        except (IndexError, AttributeError):
             return
 
         self.dialog_eliminar_canal = QtWidgets.QDialog()
@@ -920,13 +956,13 @@ class Lab_Widget(QtWidgets.QWidget):
                 if self.dispositivos_conectados[osciloscopio]['canales'][chan_id]['nombre'] == nombre_canal:
                     canal = self.dispositivos_conectados[osciloscopio]['canales'][chan_id]
                     break
-            if canal == None:
+            if canal is None:
                 self.print('Error eliminando canal: Canal no encontrado')
                 self.ui.status.setText('Status: Error')
                 self.dialog_eliminar_canal.done(1)
                 return
             
-            del canal
+            del self.dispositivos_conectados[osciloscopio]['canales'][chan_id]
 
             if chan_id in self.datos[osciloscopio]:
                 del self.datos[osciloscopio][chan_id]
@@ -941,13 +977,19 @@ class Lab_Widget(QtWidgets.QWidget):
 
     def actualizar_status(self, ultimo):
         if len(self.data_workers) <=1 and ultimo:
+            # Acquisition complete - release lock and re-enable button
+            self.adquisicion_en_progreso = False
+            self.ui.adquisicion_adquirir.setEnabled(True)
+            
             if self.ui.adquisicion_auto_guardar.checkState() == Qt.CheckState.Checked:
                 self.ui.status.setText('Status: Guardando datos')
-                self.trigger_worker.pause = False
                 self.guardar_datos()
             else:
                 self.ui.status.setText('Status: OK')
-                self.trigger_worker.pause = False
+            
+            # Only resume trigger after everything is complete (small delay to prevent immediate re-trigger)
+            QThread.msleep(100)
+            self.trigger_worker.pause = False
         else:
             if len(self.data_workers)>1:
                 self.ui.status.setText('Status: Adquiriendo datos de ' + str(len(self.data_workers)) + ' dispositivos')
@@ -956,27 +998,43 @@ class Lab_Widget(QtWidgets.QWidget):
 
     def eliminar_workers(self):
 
-        for worker in self.data_workers:
-            if worker.done:
-                self.data_workers.remove(worker)
+        for worker in self.data_workers[:]:
+            try:
+                if worker.done:
+                    self.data_workers.remove(worker)
+            except RuntimeError:
+                # Worker might have been deleted already
+                if worker in self.data_workers:
+                    self.data_workers.remove(worker)
                 
-        for thread in self.data_threads:
+        for thread in self.data_threads[:]:
             try:
                 if not thread.isRunning():
                     self.data_threads.remove(thread)
-            except:
-                try:
-                    self.data_threads.remove(thread)
-                except:
-                    pass
+            except RuntimeError:
+                pass
 
     def adquirir_datos(self):
+
+        # Check if acquisition is already in progress
+        if self.adquisicion_en_progreso:
+            self.print('Adquisicion ya en progreso, ignorando solicitud')
+            return False
+        
+        self.adquisicion_en_progreso = True
+        self.ui.adquisicion_adquirir.setEnabled(False)  # Disable button during acquisition
+        
+        # Pause trigger worker to prevent VISA query conflicts
+        self.trigger_worker.pause = True
+        time.sleep(0.2)  # Wait for any pending trigger queries to complete
 
         self.timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
         self.print('Adquiriendo datos \t-\t' + self.timestamp)
         self.ui.status.setText('Status: Adquiriendo datos de ' + str(len(self.dispositivos_conectados)) + ' dispositivos')
 
         try:
+            # Clean up any stale workers before starting
+            self.eliminar_workers()
 
             self.datos = {}
             self.ui.adquisicion_preview_graph.clear()
@@ -1002,7 +1060,9 @@ class Lab_Widget(QtWidgets.QWidget):
                 
                 worker = DataWorker()
                 thread = QThread()
-                worker.set_device(nombre_dispositivo, canales)
+                # Reuse existing device connection for faster acquisition
+                existing_device = self.dispositivos_conectados[nombre_dispositivo].get('dispositivo')
+                worker.set_device(nombre_dispositivo, canales, existing_device)
 
                 worker.moveToThread(thread)
                 thread.started.connect(worker.get_data)
@@ -1021,6 +1081,8 @@ class Lab_Widget(QtWidgets.QWidget):
             if canales_solicitados == 0:
                 self.print('No hay canales por adquirir')
                 self.ui.status.setText('Status: Error')
+                self.adquisicion_en_progreso = False
+                self.ui.adquisicion_adquirir.setEnabled(True)
 
 
             return True
@@ -1029,6 +1091,8 @@ class Lab_Widget(QtWidgets.QWidget):
             self.print('Error adquiriendo datos:')
             self.print(str(e) + '\n')
             self.ui.status.setText('Status: Error')
+            self.adquisicion_en_progreso = False
+            self.ui.adquisicion_adquirir.setEnabled(True)
 
     def guardar_datos(self):
         if self.carpeta_local == '':
@@ -1050,17 +1114,27 @@ class Lab_Widget(QtWidgets.QWidget):
                     length = len(self.datos[nombre_dispositivo][chan]['x'])
                     if length > maxdatalength:
                         maxdatalength = length
-            i=0
-            df = pd.DataFrame()
+            # Build DataFrame more efficiently using dict comprehension
+            data_dict = {}
+            col_order = []
             for nombre_dispositivo in self.datos:
                 for chan in self.datos[nombre_dispositivo]:
                     nombre = self.dispositivos_conectados[nombre_dispositivo]['canales'][chan]['nombre']
-                    if len(self.datos[nombre_dispositivo][chan]['x']) < maxdatalength:
-                        df.insert( i*2, 't_'+nombre, list(self.datos[nombre_dispositivo][chan]['x']) + [''] * (maxdatalength - len(self.datos[nombre_dispositivo][chan]['x'])))
-                        df.insert( i*2 + 1, nombre, list(self.datos[nombre_dispositivo][chan]['y'])  + [''] * (maxdatalength - len(self.datos[nombre_dispositivo][chan]['y'])))
-                    else:
-                        df.insert( i*2, 't_'+nombre, self.datos[nombre_dispositivo][chan]['x'] )
-                        df.insert( i*2 + 1, nombre, self.datos[nombre_dispositivo][chan]['y'] )
+                    x_data = self.datos[nombre_dispositivo][chan]['x']
+                    y_data = self.datos[nombre_dispositivo][chan]['y']
+                    
+                    # Pad with NaN instead of empty string (more efficient, proper numeric type)
+                    if len(x_data) < maxdatalength:
+                        pad_length = maxdatalength - len(x_data)
+                        x_data = np.concatenate([x_data, np.full(pad_length, np.nan)])
+                        y_data = np.concatenate([y_data, np.full(pad_length, np.nan)])
+                    
+                    data_dict['t_' + nombre] = x_data
+                    data_dict[nombre] = y_data
+                    col_order.extend(['t_' + nombre, nombre])
+            
+            # Create DataFrame in one operation (much faster than repeated insert)
+            df = pd.DataFrame(data_dict, columns=col_order)
             if len(df.columns) > 0:
 
                 prefijo = self.ui.adquisicion_prefijo.text()
@@ -1094,15 +1168,14 @@ class Lab_Widget(QtWidgets.QWidget):
             self.ui.status.setText('Status: Error')
 
     def trigger_event(self, count):
-        self.print('Trigger status: ' + str(count))
-        #self.print('Trigger pausado')
+        self.print('Evento de Trigger')
+        # Skip if acquisition is already in progress
+        if self.adquisicion_en_progreso:
+            self.print('Adquisicion en progreso, ignorando trigger')
+            return
         self.adquirir_datos()
 
     def get_data_event(self, response):
-
-        # Check the current thread and the main thread
-        print(QThread.currentThread() , QtWidgets.QApplication.instance().thread())
-
         nombre_dispositivo = response['dispositivo']
         canal = response['canal']
 
@@ -1119,9 +1192,9 @@ class Lab_Widget(QtWidgets.QWidget):
         i=0
         for dispositivo in self.datos:
             for chan in self.datos[dispositivo]:
-
-                x = np.array(self.datos[dispositivo][chan]['x'])
-                y = np.array(self.datos[dispositivo][chan]['y'])
+                # Data is already numpy arrays, no need to convert again
+                x = self.datos[dispositivo][chan]['x']
+                y = self.datos[dispositivo][chan]['y']
                 self.ui.adquisicion_preview_graph.plot(x, y, name = self.dispositivos_conectados[dispositivo]['canales'][chan]['nombre'], pen = self.color_palette[i%len(self.color_palette)])
                 i+=1
 
@@ -1134,7 +1207,7 @@ class Lab_Widget(QtWidgets.QWidget):
         else:
             self.ui.adquisicion_label_preview.setText(prefijo + '_' + self.timestamp + '.csv')
 
-        self.print('Datos adquiridos de ' + nombre_dispositivo + ' ' + canal + ' en ' + str(round(response['tiempo'],1)) + ' segundos')
+        self.print('Datos adquiridos de ' + nombre_dispositivo + ' ' + canal + ' en ' + str(int(response['tiempo']*1000)) + ' ms')
 
         self.actualizar_status(response['ultimo'])
         
@@ -1182,7 +1255,6 @@ class Lab_Widget(QtWidgets.QWidget):
             self.ui.status.setText('Status: Error')
 
     def auto(self):
-        
         if self.ui.adquisicion_auto.text() == 'Auto Adquirir':
             self.print('Adquisicion automatica iniciada')
             self.ui.adquisicion_auto.setText('Stop')
@@ -1231,16 +1303,21 @@ class Lab_Widget(QtWidgets.QWidget):
 
         elif self.ui.adquisicion_auto.text() == 'Stop':
             self.print('Adquisicion automatica detenida')
-            self.adquisicion_auto.setText('Auto Adquirir')
-            self.adquisicion_auto_guardar.setEnabled(True)
-            self.adquisicion_auto_imagenes.setEnabled(True)
-            self.adquisicion_seleccionar_carpeta_imagenes.setEnabled(True)
-            self.adquisicion_fuente_trigger.setEnabled(True)
+            self.ui.adquisicion_auto.setText('Auto Adquirir')
+            self.ui.adquisicion_auto_guardar.setEnabled(True)
+            self.ui.adquisicion_auto_imagenes.setEnabled(True)
+            self.ui.adquisicion_seleccionar_carpeta_imagenes.setEnabled(True)
+            self.ui.adquisicion_fuente_trigger.setEnabled(True)
             
             self.trigger_worker.running = False
             self.trigger_thread.quit()
             self.image_worker.running = False
             self.image_thread.quit()
+            
+            # Reset acquisition state
+            self.adquisicion_en_progreso = False
+            self.ui.adquisicion_adquirir.setEnabled(True)
+            self.eliminar_workers()
  
     def seleccionar_carpeta_imagenes(self):
         parent = Tk()
@@ -1335,18 +1412,15 @@ class Lab_Widget(QtWidgets.QWidget):
         try:
             file = self.ui.adquisicion_archivos_locales.selectedItems()[0].text(1)
             filepath = self.carpeta_local + '/' + file
+            filepath_lower = filepath.lower()
 
-            
-            if filepath[-4:].lower() == '.csv':
-
+            if filepath_lower.endswith(CSV_EXTENSIONS):
                 self.visualizar_csv(filepath, self.ui.adquisicion_preview_graph, self.ui.adquisicion_preview_image, self.ui.adquisicion_preview_text, self.ui.adquisicion_label_preview)
 
-            elif filepath[-4:].lower() == '.png' or filepath[-4:].lower() == '.jpg' or filepath[-5:].lower() == '.jpeg' or filepath[-5:].lower() == '.gif' or filepath[-5:].lower() == '.bmp' or filepath[-5:].lower() == '.tiff':
-
+            elif filepath_lower.endswith(IMAGE_EXTENSIONS):
                 self.visualizar_imagen(filepath, self.ui.adquisicion_preview_graph, self.ui.adquisicion_preview_image, self.ui.adquisicion_preview_text, self.ui.adquisicion_label_preview)
 
-            elif filepath[-4:].lower() == '.txt' or filepath[-5:].lower() == '.json' or filepath[-7:].lower() == '.config' or filepath[-3:].lower() == '.py':
-
+            elif filepath_lower.endswith(TEXT_EXTENSIONS):
                 self.visualizar_texto(filepath, self.ui.adquisicion_preview_graph, self.ui.adquisicion_preview_image, self.ui.adquisicion_preview_text, self.ui.adquisicion_label_preview)
 
             else:
@@ -1364,18 +1438,15 @@ class Lab_Widget(QtWidgets.QWidget):
         try:
             file = self.ui.ingreso_archivos_locales.selectedItems()[0].text(1)
             filepath = self.carpeta_local + '/' + file
+            filepath_lower = filepath.lower()
 
-            
-            if filepath[-4:].lower() == '.csv':
-
+            if filepath_lower.endswith(CSV_EXTENSIONS):
                 self.visualizar_csv(filepath, self.ui.ingreso_preview_graph, self.ui.ingreso_preview_image, self.ui.ingreso_preview_text, self.ui.ingreso_label_preview)
 
-            elif filepath[-4:].lower() == '.png' or filepath[-4:].lower() == '.jpg' or filepath[-5:].lower() == '.jpeg' or filepath[-5:].lower() == '.gif' or filepath[-5:].lower() == '.bmp' or filepath[-5:].lower() == '.tiff':
-
+            elif filepath_lower.endswith(IMAGE_EXTENSIONS):
                 self.visualizar_imagen(filepath, self.ui.ingreso_preview_graph, self.ui.ingreso_preview_image, self.ui.ingreso_preview_text, self.ui.ingreso_label_preview)
 
-            elif filepath[-4:].lower() == '.txt' or filepath[-5:].lower() == '.json' or filepath[-7:].lower() == '.config' or filepath[-3:].lower() == '.py':
-
+            elif filepath_lower.endswith(TEXT_EXTENSIONS):
                 self.visualizar_texto(filepath, self.ui.ingreso_preview_graph, self.ui.ingreso_preview_image, self.ui.ingreso_preview_text, self.ui.ingreso_label_preview)
 
             else:
@@ -1708,7 +1779,7 @@ class Lab_Widget(QtWidgets.QWidget):
             try:
                 datapoint = int(datapoint)
                 self.ui.ingreso_datapoint_parametro_1.setText(str(datapoint + 1))
-            except:
+            except ValueError:
                 pass
 
     def agregar_valor_parametro_2(self):
@@ -1721,7 +1792,7 @@ class Lab_Widget(QtWidgets.QWidget):
             try:
                 datapoint = int(datapoint)
                 self.ui.ingreso_datapoint_parametro_2.setText(str(datapoint + 1))
-            except:
+            except ValueError:
                 pass
 
     def agregar_valor_parametro_3(self):
@@ -1734,7 +1805,7 @@ class Lab_Widget(QtWidgets.QWidget):
             try:
                 datapoint = int(datapoint)
                 self.ui.ingreso_datapoint_parametro_3.setText(str(datapoint + 1))
-            except:
+            except ValueError:
                 pass
 
     def agregar_valor_parametro_4(self):
@@ -1747,12 +1818,12 @@ class Lab_Widget(QtWidgets.QWidget):
             try:
                 datapoint = int(datapoint)
                 self.ui.ingreso_datapoint_parametro_4.setText(str(datapoint + 1))
-            except:
+            except ValueError:
                 pass
     
     def crear_parametro(self):
         
-        if self.mongo_client == None:
+        if self.mongo_client is None:
             self.print('Error creando parametro: Servidor desconectado')
             self.ui.status.setText('Status: Error')
             return
@@ -1760,51 +1831,23 @@ class Lab_Widget(QtWidgets.QWidget):
         nombre = self.ui_crear_parametro.nombre.text()
         tipo = self.ui_crear_parametro.tipo.currentText()
         if nombre not in self.nombres_parametros:
-            if tipo == 'Entero':
-                self.nombres_parametros[nombre] = 'int'
-                try:
-                    if self.mongo_client.db.nombres_parametros.count_documents({'nombre':nombre}) < 1:
-                        
-                        self.mongo_client.db.nombres_parametros.insert_one({'nombre':nombre, 'tipo':'int'})
-                        self.ui.status.setText('Status: OK')
-                except:
-                    self.print('Error al crear parametro: Parametro ya existe')
-                    self.ui.status.setText('Status: Error')
-            elif tipo == 'Real':
-                self.nombres_parametros[nombre] = 'float'
-                try:
-                    if self.mongo_client.db.nombres_parametros.count_documents({'nombre':nombre}) < 1:
-                        self.mongo_client.db.nombres_parametros.insert_one({'nombre':nombre, 'tipo':'float'})
-                        self.ui.status.setText('Status: OK')
-                except:
-                    self.print('Error al crear parametro: Parametro ya existe')
-                    self.ui.status.setText('Status: Error')
-            elif tipo == 'Texto':
-                self.nombres_parametros[nombre] = 'string'
-                try:
-                    if self.mongo_client.db.nombres_parametros.count_documents({'nombre':nombre}) < 1:
-                        self.mongo_client.db.nombres_parametros.insert_one({'nombre':nombre, 'tipo':'string'})
-                        self.ui.status.setText('Status: OK')
-                except:
-                    self.print('Error al crear parametro: Parametro ya existe')
-                    self.ui.status.setText('Status: Error')
-            elif tipo == 'Boolean':
-                self.nombres_parametros[nombre] = 'boolean'
-                try:
-                    if self.mongo_client.db.nombres_parametros.count_documents({'nombre':nombre}) < 1:
-                        self.mongo_client.db.nombres_parametros.insert_one({'nombre':nombre, 'tipo':'boolean'})
-                        self.ui.status.setText('Status: OK')
-                except:
-                    self.print('Error al crear parametro: Parametro ya existe')
-                    self.ui.status.setText('Status: Error')
-            else:
+            tipo_map = {'Entero': 'int', 'Real': 'float', 'Texto': 'string', 'Boolean': 'boolean'}
+            if tipo not in tipo_map:
                 self.print('Error al crear parametro: Tipo invalido')
                 self.ui.status.setText('Status: Error')
                 self.refrescar_nombres_parametros()
                 self.dialog_crear_parametro.done(1)
                 return
-
             
+            tipo_db = tipo_map[tipo]
+            self.nombres_parametros[nombre] = tipo_db
+            try:
+                if self.mongo_client.db.nombres_parametros.count_documents({'nombre': nombre}) < 1:
+                    self.mongo_client.db.nombres_parametros.insert_one({'nombre': nombre, 'tipo': tipo_db})
+                    self.ui.status.setText('Status: OK')
+            except Exception:
+                self.print('Error al crear parametro: Parametro ya existe')
+                self.ui.status.setText('Status: Error')
 
         else:
             self.print('Error al crear parametro: Parametro ya existe')
@@ -1895,7 +1938,7 @@ class Lab_Widget(QtWidgets.QWidget):
                 resumen = json.load(archivo)
             
             for nombre_dispositivo in resumen:
-                
+
                 dispositivo = self.manager.open_resource(nombre_dispositivo)
                 try:
                     dispositivo.timeout = 3 * 1000
@@ -1930,80 +1973,48 @@ class Lab_Widget(QtWidgets.QWidget):
         self.ui.log.moveCursor(QTextCursor.End)
         self.ui.log.ensureCursorVisible()
 
-    def toggle_darkmode(self):
+    def toggle_darkmode(self):        
         self.darkmode = not self.darkmode
+        app = QtWidgets.QApplication.instance()
+        
         if self.darkmode:
-            dark_stylesheet = """
-                QWidget {
-                    background-color: #2b2b2b;
-                    color: #ffffff;
-                }
-                QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
-                    background-color: #3c3c3c;
-                    color: #ffffff;
-                    border: 1px solid #555555;
-                }
-                QPushButton {
-                    background-color: #404040;
-                    color: #ffffff;
-                    border: 1px solid #555555;
-                }
-                QPushButton:hover {
-                    background-color: #505050;
-                }
-                QTreeWidget, QListWidget, QTableWidget {
-                    background-color: #3c3c3c;
-                    color: #ffffff;
-                    alternate-background-color: #454545;
-                }
-                QHeaderView::section {
-                    background-color: #404040;
-                    color: #ffffff;
-                    border: 1px solid #555555;
-                }
-                QTabWidget::pane {
-                    border: 1px solid #555555;
-                }
-                QTabBar::tab {
-                    background-color: #404040;
-                    color: #ffffff;
-                }
-                QTabBar::tab:selected {
-                    background-color: #505050;
-                }
-                QLabel {
-                    color: #ffffff;
-                }
-                QGroupBox {
-                    border: 1px solid #555555;
-                    color: #ffffff;
-                }
-                QDialog {
-                    background-color: #2b2b2b;
-                    color: #ffffff;
-                }
-                QCheckBox {
-                    color: #ffffff;
-                }
-                QScrollBar:vertical, QScrollBar:horizontal {
-                    background-color: #3c3c3c;
-                }
-                QScrollBar::handle:vertical, QScrollBar::handle:horizontal {
-                    background-color: #555555;
-                }
-            """
-            QtWidgets.QApplication.instance().setStyleSheet(dark_stylesheet)
+            # Use Fusion style for consistent cross-platform dark theme
+            app.setStyle('Fusion')
+            
+            dark_palette = QPalette()
+            dark_palette.setColor(QPalette.ColorRole.Window, QColor(53, 53, 53))
+            dark_palette.setColor(QPalette.ColorRole.WindowText, QColor(255, 255, 255))
+            dark_palette.setColor(QPalette.ColorRole.Base, QColor(42, 42, 42))
+            dark_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(66, 66, 66))
+            dark_palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 255))
+            dark_palette.setColor(QPalette.ColorRole.ToolTipText, QColor(255, 255, 255))
+            dark_palette.setColor(QPalette.ColorRole.Text, QColor(255, 255, 255))
+            dark_palette.setColor(QPalette.ColorRole.Button, QColor(53, 53, 53))
+            dark_palette.setColor(QPalette.ColorRole.ButtonText, QColor(255, 255, 255))
+            dark_palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+            dark_palette.setColor(QPalette.ColorRole.Link, QColor(42, 130, 218))
+            dark_palette.setColor(QPalette.ColorRole.Highlight, QColor(42, 130, 218))
+            dark_palette.setColor(QPalette.ColorRole.HighlightedText, QColor(0, 0, 0))
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(127, 127, 127))
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(127, 127, 127))
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(127, 127, 127))
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, QColor(80, 80, 80))
+            dark_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, QColor(127, 127, 127))
+            
+            app.setPalette(dark_palette)
             self.ui.darkmode_button.setText('Lightmode')
             self.print('Modo oscuro activado')
         else:
-            QtWidgets.QApplication.instance().setStyleSheet('')
+            # Reset to default Fusion light
+            app.setStyle('Fusion')
+            app.setPalette(app.style().standardPalette())
             self.ui.darkmode_button.setText('Darkmode')
             self.print('Modo claro activado')
 
     def subir(self):
 
         
-        if self.mongo_client == None:
+        if self.mongo_client is None:
             self.print('Error subiendo datos al servidor: Servidor desconectado')
             self.ui.status.setText('Status: Error')
             self.dialog_subir.done(1)
@@ -2101,7 +2112,7 @@ if __name__ == "__main__":
     shortcut = QShortcut(Qt.Key.Key_F11, window)
     shortcut.activated.connect(toggle_fullscreen)
 
-    # Start with dark mode enabled by default
+    # Set Dark Mode by default
     window.toggle_darkmode()
     
     window.show()

@@ -1287,7 +1287,7 @@ class Ui_Widget(object):
         self.label.setText(QCoreApplication.translate("Widget", u"Adquisicion Automatica en Cada Disparo", None))
         self.label_9.setText(QCoreApplication.translate("Widget", u"Carpeta Origen Imagenes:", None))
         self.adquisicion_auto_imagenes.setText(QCoreApplication.translate("Widget", u"Auto Ingresar Imagenes", None))
-        self.adquisicion_auto.setText(QCoreApplication.translate("Widget", u"Auto Adquirir ", None))
+        self.adquisicion_auto.setText(QCoreApplication.translate("Widget", u"Auto Adquirir", None))
         self.adquisicion_label_carpeta_imagenes.setText("")
         self.label_11.setText(QCoreApplication.translate("Widget", u"Se\u00f1al de Trigger:", None))
         self.adquisicion_adquirir.setText(QCoreApplication.translate("Widget", u"Adquirir", None))

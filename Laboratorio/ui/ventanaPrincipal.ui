@@ -1858,7 +1858,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             <enum>Qt::LayoutDirection::LeftToRight</enum>
            </property>
            <property name="text">
-            <string>Auto Adquirir </string>
+            <string>Auto Adquirir</string>
            </property>
           </widget>
          </item>
