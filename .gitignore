@@ -1,5 +1,6 @@
 # Python cache and compiled files
 src/__pycache__/
+__pycache__/
 *.pyc
 *.pyo
 *.pyd
@@ -24,3 +25,12 @@ Thumbs.db
 
 # Document backups and temp files
 *.tmp
+
+# PyInstaller
+build/
+dist/
+*.spec
+./Laboratorio/build/
+./Laboratorio/dist/
+./Oficina/build/
+./Oficina/dist/
