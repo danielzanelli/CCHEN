@@ -1,0 +1,11 @@
+numpy==2.4.2
+pandas==3.0.1
+paramiko==4.0.0
+pymongo==4.16.0
+PyQt5==5.15.11
+PyQt5_sip==12.17.0
+pyqtgraph==0.13.7
+pyside6==6.9.2
+pyside6_addons==6.9.2
+pyside6_essentials==6.9.2
+pyvisa==1.15.0

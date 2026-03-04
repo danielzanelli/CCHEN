@@ -32,6 +32,14 @@ from tkinter import Tk
 from tkinter.filedialog import askdirectory, askopenfilename, asksaveasfilename
 
 
+def resource_path(relative_path):
+    """Get absolute path to resource, works for dev and for PyInstaller."""
+    if hasattr(sys, '_MEIPASS'):
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), relative_path)
+
+
 # File type constants for cleaner extension checking
 CSV_EXTENSIONS = ('.csv',)
 IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')
@@ -286,7 +294,7 @@ class Lab_Widget(QtWidgets.QWidget):
         self.image_thread = QThread()
         self.image_worker = ImageWorker()
 
-        self.darkmode = False
+        self.darkmode = None  # Will be set during apply_initial_theme
         self.adquisicion_en_progreso = False  # Lock flag to prevent concurrent acquisitions
 
 
@@ -1973,6 +1981,61 @@ class Lab_Widget(QtWidgets.QWidget):
         self.ui.log.moveCursor(QTextCursor.End)
         self.ui.log.ensureCursorVisible()
 
+    def is_os_dark_mode(self):
+        """Detect if OS is in dark mode. Supports Windows, macOS, and Linux."""
+        import platform
+        system = platform.system()
+        
+        try:
+            if system == 'Windows':
+                import winreg
+                key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, 
+                                     r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize")
+                value, _ = winreg.QueryValueEx(key, "AppsUseLightTheme")
+                winreg.CloseKey(key)
+                return value == 0  # 0 means dark mode, 1 means light mode
+            
+            elif system == 'Darwin':  # macOS
+                import subprocess
+                result = subprocess.run(
+                    ['defaults', 'read', '-g', 'AppleInterfaceStyle'],
+                    capture_output=True, text=True
+                )
+                return result.returncode == 0 and 'Dark' in result.stdout
+            
+            elif system == 'Linux':
+                import subprocess
+                # Try GTK settings first (works for GNOME, Cinnamon, etc.)
+                result = subprocess.run(
+                    ['gsettings', 'get', 'org.gnome.desktop.interface', 'color-scheme'],
+                    capture_output=True, text=True
+                )
+                if result.returncode == 0:
+                    return 'dark' in result.stdout.lower()
+                
+                # Fallback: check gtk-theme-name for 'dark' keyword
+                result = subprocess.run(
+                    ['gsettings', 'get', 'org.gnome.desktop.interface', 'gtk-theme'],
+                    capture_output=True, text=True
+                )
+                if result.returncode == 0:
+                    return 'dark' in result.stdout.lower()
+                
+                return False
+            
+            else:
+                return False  # Unknown platform, default to light mode
+                
+        except Exception:
+            return False  # Default to light mode if detection fails
+
+    def apply_initial_theme(self):
+        """Apply theme based on OS setting at startup."""
+        os_dark = self.is_os_dark_mode()
+        # Set darkmode to opposite so toggle_darkmode switches to correct mode
+        self.darkmode = not os_dark
+        self.toggle_darkmode()
+
     def toggle_darkmode(self):        
         self.darkmode = not self.darkmode
         app = QtWidgets.QApplication.instance()
@@ -2005,9 +2068,30 @@ class Lab_Widget(QtWidgets.QWidget):
             self.ui.darkmode_button.setText('Lightmode')
             self.print('Modo oscuro activado')
         else:
-            # Reset to default Fusion light
+            # Use Fusion style with explicit light palette (ignores OS dark mode)
             app.setStyle('Fusion')
-            app.setPalette(app.style().standardPalette())
+            
+            light_palette = QPalette()
+            light_palette.setColor(QPalette.ColorRole.Window, QColor(240, 240, 240))
+            light_palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))
+            light_palette.setColor(QPalette.ColorRole.Base, QColor(255, 255, 255))
+            light_palette.setColor(QPalette.ColorRole.AlternateBase, QColor(245, 245, 245))
+            light_palette.setColor(QPalette.ColorRole.ToolTipBase, QColor(255, 255, 220))
+            light_palette.setColor(QPalette.ColorRole.ToolTipText, QColor(0, 0, 0))
+            light_palette.setColor(QPalette.ColorRole.Text, QColor(0, 0, 0))
+            light_palette.setColor(QPalette.ColorRole.Button, QColor(240, 240, 240))
+            light_palette.setColor(QPalette.ColorRole.ButtonText, QColor(0, 0, 0))
+            light_palette.setColor(QPalette.ColorRole.BrightText, QColor(255, 0, 0))
+            light_palette.setColor(QPalette.ColorRole.Link, QColor(0, 0, 255))
+            light_palette.setColor(QPalette.ColorRole.Highlight, QColor(0, 120, 215))
+            light_palette.setColor(QPalette.ColorRole.HighlightedText, QColor(255, 255, 255))
+            light_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.WindowText, QColor(120, 120, 120))
+            light_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Text, QColor(120, 120, 120))
+            light_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.ButtonText, QColor(120, 120, 120))
+            light_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.Highlight, QColor(180, 180, 180))
+            light_palette.setColor(QPalette.ColorGroup.Disabled, QPalette.ColorRole.HighlightedText, QColor(120, 120, 120))
+            
+            app.setPalette(light_palette)
             self.ui.darkmode_button.setText('Darkmode')
             self.print('Modo claro activado')
 
@@ -2098,7 +2182,7 @@ class Lab_Widget(QtWidgets.QWidget):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QIcon('icon.ico'))
+    app.setWindowIcon(QIcon(resource_path('icon.ico')))
     window = Lab_Widget()
     window.setWindowTitle('Applicacion de Laboratorio')
 
@@ -2110,8 +2194,8 @@ if __name__ == "__main__":
     shortcut = QShortcut(Qt.Key.Key_F11, window)
     shortcut.activated.connect(toggle_fullscreen)
 
-    # Set Dark Mode by default
-    window.toggle_darkmode()
+    # Apply initial theme based on OS setting
+    window.apply_initial_theme()
     
     window.show()
     window.seleccionar_carpeta()
