@@ -23,6 +23,7 @@ import re
 import time
 import json
 import pyvisa
+import pyvisa_py
 import numpy as np
 import pandas as pd
 from PySide6.QtGui import QPixmap, QTextCursor, QIcon, QShortcut, QPalette, QColor
@@ -501,7 +502,8 @@ class Lab_Widget(QtWidgets.QWidget):
 
         try:
             self.dispositivos_disponibles = [x for x in self.manager.list_resources()]
-        except Exception:
+        except Exception as e:
+            self.print('Error buscando dispositivos:\n' + str(e))
             self.dispositivos_disponibles = []
 
         items = []
