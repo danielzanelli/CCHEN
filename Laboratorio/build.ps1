@@ -30,6 +30,14 @@ python -m PyInstaller `
     --windowed `
     --icon src/icon.ico `
     --add-data "src/icon.ico;." `
+    --hidden-import pyvisa_py `
+    --hidden-import pyvisa_py.protocols `
+    --hidden-import pyvisa_py.protocols.rpc `
+    --hidden-import pyvisa_py.protocols.vxi11 `
+    --hidden-import pyvisa_py.protocols.hislip `
+    --hidden-import pyvisa_py.protocols.usbtmc `
+    --hidden-import zeroconf `
+    --hidden-import psutil `
     --exclude-module PyQt5 `
     --exclude-module PyQt6 `
     --noconfirm `

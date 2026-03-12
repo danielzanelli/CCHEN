@@ -24,6 +24,7 @@ import time
 import json
 import pyvisa
 import pyvisa_py
+import zeroconf
 import numpy as np
 import pandas as pd
 from PySide6.QtGui import QPixmap, QTextCursor, QIcon, QShortcut, QPalette, QColor
