@@ -1,12 +1,6 @@
 name: Build Windows Executable
 
 on:
-  push:
-    branches: [main, master]
-    tags:
-      - 'v*'
-  pull_request:
-    branches: [main, master]
   workflow_dispatch:
 
 jobs:
@@ -37,23 +31,14 @@ jobs:
             --windowed `
             --icon src/icon.ico `
             --add-data "src/icon.ico;." `
+            --hidden-import pyvisa_py `
             --exclude-module PyQt5 `
             --exclude-module PyQt6 `
             --noconfirm `
             --clean `
             src/AppLab.py
       
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: AppLab-Windows
-          path: Laboratorio/dist/AppLab/
-          retention-days: 30
-      
-      - name: Create Release (on tag)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: Laboratorio/dist/AppLab/**
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Compress output
+        working-directory: Laboratorio
+        run: |
+          Compress-Archive -Path dist/AppLab/* -DestinationPath "dist/AppLab-Windows.zip"
