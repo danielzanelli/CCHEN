@@ -25,6 +25,24 @@ import json
 import pyvisa
 import pyvisa_py
 import zeroconf
+
+# Optional pyvisa-py backends for USB, Serial, and GPIB
+try:
+    import usb.core
+    import usb.util
+except ImportError:
+    pass  # pyusb not available, USB instruments won't be detected
+
+try:
+    import serial
+    import serial.tools.list_ports
+except ImportError:
+    pass  # pyserial not available, Serial instruments won't be detected
+
+try:
+    import gpib_ctypes
+except ImportError:
+    pass  # gpib-ctypes not available, GPIB instruments won't be detected
 import numpy as np
 import pandas as pd
 from PySide6.QtGui import QPixmap, QTextCursor, QIcon, QShortcut, QPalette, QColor

@@ -23,26 +23,9 @@ if (Test-Path "build") {
     Remove-Item -Recurse -Force "build"
 }
 
-# Build with PyInstaller
+# Build with PyInstaller using spec file
 Write-Host "Running PyInstaller..." -ForegroundColor Yellow
-python -m PyInstaller `
-    --name AppLab `
-    --windowed `
-    --icon src/icon.ico `
-    --add-data "src/icon.ico;." `
-    --hidden-import pyvisa_py `
-    --hidden-import pyvisa_py.protocols `
-    --hidden-import pyvisa_py.protocols.rpc `
-    --hidden-import pyvisa_py.protocols.vxi11 `
-    --hidden-import pyvisa_py.protocols.hislip `
-    --hidden-import pyvisa_py.protocols.usbtmc `
-    --hidden-import zeroconf `
-    --hidden-import psutil `
-    --exclude-module PyQt5 `
-    --exclude-module PyQt6 `
-    --noconfirm `
-    --clean `
-    src/AppLab.py
+python -m PyInstaller AppLab.spec --noconfirm --clean
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Build successful! Output in dist/AppLab/" -ForegroundColor Green
