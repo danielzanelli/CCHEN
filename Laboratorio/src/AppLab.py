@@ -55,6 +55,56 @@ CSV_EXTENSIONS = ('.csv',)
 IMAGE_EXTENSIONS = ('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.tiff')
 TEXT_EXTENSIONS = ('.txt', '.json', '.config', '.py')
 
+# Global VISA backend state
+_visa_backend = None  # Will be 'native', 'pyvisa-py', or None
+_resource_manager = None  # Cached ResourceManager instance
+
+def get_resource_manager(force_new=False):
+    """Get working VISA ResourceManager with automatic backend fallback.
+    
+    Tries native VISA first (TekVisa, NI-VISA) which supports GPIB/USB/Serial.
+    Falls back to pyvisa-py for machines without vendor drivers (TCPIP/Serial only).
+    
+    Args:
+        force_new: If True, create a new ResourceManager instead of using cached one.
+        
+    Returns:
+        tuple: (ResourceManager, backend_name) or (None, None) if no backend works
+    """
+    global _visa_backend, _resource_manager
+    
+    # Return cached manager if available and not forcing new
+    if not force_new and _resource_manager is not None:
+        return _resource_manager, _visa_backend
+    
+    # Try native VISA first (supports GPIB, USB, everything)
+    try:
+        rm = pyvisa.ResourceManager()
+        rm.list_resources()  # Test if it actually works
+        _resource_manager = rm
+        _visa_backend = 'native'
+        return rm, 'native'
+    except Exception:
+        pass
+    
+    # Fall back to pyvisa-py (TCPIP/Serial only, but no drivers needed)
+    try:
+        rm = pyvisa.ResourceManager('@py')
+        rm.list_resources()  # Test if it works
+        _resource_manager = rm
+        _visa_backend = 'pyvisa-py'
+        return rm, 'pyvisa-py'
+    except Exception:
+        pass
+    
+    _visa_backend = None
+    _resource_manager = None
+    return None, None
+
+def get_visa_backend():
+    """Return the currently active VISA backend name."""
+    return _visa_backend
+
 
 class TriggerWorker(QObject):
 
@@ -67,7 +117,8 @@ class TriggerWorker(QObject):
         self.pause = False
 
     def set_source(self, source):
-        self.device = pyvisa.ResourceManager('@py').open_resource(source)
+        rm, _ = get_resource_manager()
+        self.device = rm.open_resource(source)
         self.device.timeout = 10 * 1000
         self.current_count = self.device.query('ACQuire:NUMACq?')
         self.source = source
@@ -152,7 +203,8 @@ class DataWorker(QObject):
         if existing_device is not None:
             self.device = existing_device
         else:
-            self.device = pyvisa.ResourceManager('@py').open_resource(device_name)
+            rm, _ = get_resource_manager()
+            self.device = rm.open_resource(device_name)
         self.device.timeout = 10 * 1000
         self.done = False
 
@@ -283,11 +335,18 @@ class Lab_Widget(QtWidgets.QWidget):
         self.carpeta_imagenes = ''
         self.timestamp = datetime.datetime.now().strftime('%Y-%m-%d_%H.%M.%S')
         self.color_palette = ['b', 'g', 'r', 'c', 'm', 'y', 'k']
-        try:
-            self.manager = pyvisa.ResourceManager('@py')
-        except Exception:
-            self.print('Error inicializando ResourceManager de PyVISA. Asegurese de tener instalado el backend pyvisa-py y que no haya conflictos con otros backends. Algunas funciones de adquisicion pueden no estar disponibles.')
-            self.manager = None
+        
+        # Initialize VISA with auto-detect backend
+        self.manager, backend = get_resource_manager()
+        if self.manager is None:
+            self.print('Error inicializando ResourceManager de PyVISA. No se encontro ningun backend funcional.')
+            self.print('Algunas funciones de adquisicion pueden no estar disponibles.')
+        elif backend == 'pyvisa-py':
+            self.print('Usando backend pyvisa-py (soporte limitado: TCPIP y Serial solamente)')
+            self.print('Para soporte GPIB/USB, instale TekVisa o NI-VISA')
+        else:
+            self.print('Usando backend VISA nativo (soporte completo: GPIB, USB, TCPIP, Serial)')
+        
         self.dispositivos_disponibles = []
         self.dispositivos_conectados = {}
         self.datos = {}
