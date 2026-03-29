@@ -11,9 +11,9 @@ import os
 import json
 import numpy as np
 import pandas as pd
-from PyQt5.QtGui import QPixmap ,QTextCursor, QIcon
-from PyQt5.QtCore import Qt
-from PyQt5 import QtWidgets
+from PySide6.QtGui import QPixmap, QTextCursor, QIcon
+from PySide6.QtCore import Qt
+from PySide6 import QtWidgets
 from tkinter import Tk
 from tkinter.filedialog import askdirectory
 
@@ -84,7 +84,7 @@ class Office_Wigdet(Ui_Widget):
         self.ui_agregar_filtro.parametro.currentIndexChanged.connect(self.refrescar_popup_agregar_filtro)
         self.refrescar_popup_agregar_filtro()
 
-        self.dialog_agregar_filtro.exec_()
+        self.dialog_agregar_filtro.exec()
         
     def refrescar_popup_agregar_filtro(self):
         
@@ -175,7 +175,7 @@ class Office_Wigdet(Ui_Widget):
         self.ui_eliminar_filtro.condicion.setText(condicion)
         self.ui_eliminar_filtro.valor.setText(valor)
 
-        self.dialog_eliminar_filtro.exec_()
+        self.dialog_eliminar_filtro.exec()
         
     def eliminar_filtro(self):
         parametro = self.ui_eliminar_filtro.parametro.text()
@@ -669,7 +669,7 @@ class Office_Wigdet(Ui_Widget):
         dir_path = os.path.dirname(os.path.realpath(__file__)).replace('\\', '/')
         sftp.get(filepath, dir_path + '/imagen_temp.' + filepath.split('.')[-1])
 
-        self.pixmap = QPixmap(dir_path + '/imagen_temp.' + filepath.split('.')[-1]).scaled(651,231, aspectRatioMode = Qt.KeepAspectRatio)            
+        self.pixmap = QPixmap(dir_path + '/imagen_temp.' + filepath.split('.')[-1]).scaled(651,231, aspectRatioMode = Qt.AspectRatioMode.KeepAspectRatio)            
         graph_frame.setVisible(False)
         image_frame.setVisible(True)
         text_frame.setVisible(False)
@@ -766,4 +766,4 @@ Widget = QtWidgets.QWidget()
 ui = Office_Wigdet(Widget)
 Widget.show()
 Widget.setWindowTitle('Applicacion de Oficina')
-sys.exit(app.exec_())
+sys.exit(app.exec())

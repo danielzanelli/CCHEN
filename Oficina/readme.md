@@ -79,11 +79,11 @@
 > 
 > Para instalar las dependencias del software usando pip:
 > 
-> `pip install paramiko pymongo numpy pandas tk pyqt5 pyqtgraph`
+> `pip install paramiko pymongo numpy pandas tk PySide6 pyqtgraph`
 > 
 > Para sistemas operativos basados en Debian (como Ubuntu) se debe instalar `tk` (Tkinter) por separado:
 > 
-> `pip install paramiko pymongo numpy pandas pyqt5 pyqtgraph`
+> `pip install paramiko pymongo numpy pandas PySide6 pyqtgraph`
 > 
 > `sudo apt install python3-tk`
 > 
@@ -118,11 +118,11 @@ Posteriormente se puede agregar el archivo 'icon.ico' a la carpeta generada y cr
 
 Se pueden realizar modificaciones a las ventanas de la interfaz gráfica disponibles en la carpeta `/ui/`. Estos pueden ser modificados con diseñadores de software QT, como QtCreator, para mas información sobre la plataforma Qt puede acceder [aqui](https://www.qt.io/product/development-tools). 
 
-En caso de querer recompilar los archivos `.ui`, esto se puede realizar usando la librería python `pyuic`. Para mayor información sobre esta librería y su instalación, puede acceder [aqui](https://pypi.org/project/pyuic5-tool/). Los archivos `.ui` pueden compilarse a `.py` mediante el comando (tomando como ejemplo el archivo `ventanaPrincipal.ui`):
+En caso de querer recompilar los archivos `.ui`, esto se puede realizar usando la herramienta `pyside6-uic` incluida con PySide6. Los archivos `.ui` pueden compilarse a `.py` mediante el comando (tomando como ejemplo el archivo `ventanaPrincipal.ui`):
 
 <br/>
 
-`pyuic5 -x .\ventanaPrincipal.ui -o ventanaPrincipal.py`
+`pyside6-uic .\ventanaPrincipal.ui -o ventanaPrincipal.py`
 
 <br/>
 
